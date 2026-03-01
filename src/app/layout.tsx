@@ -18,12 +18,6 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scroll-smooth">
       <body className="antialiased bg-background min-h-screen font-sans">
-        <Script
-          id="orchids-browser-logs"
-          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts/orchids-browser-logs.js"
-          strategy="afterInteractive"
-          data-orchids-project-id="a81e45e8-f001-4975-84b2-a837e9bbb846"
-        />
         <AuthProvider>
           <Navbar />
           <div className="flex min-h-screen">
