@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Save, Search, UserPlus, Users, MapPin, Calendar, Clock, Lock, ShieldCheck, Bell, MessageSquare, Type, Info, CheckCircle2, AlertCircle } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EventType } from "@/types";
+import { toast } from "sonner";
 
 export default function NewEventPage() {
   const [activeLoc, setActiveLoc] = useState("Antananarivo");
@@ -15,8 +16,16 @@ export default function NewEventPage() {
     filterLoc: false
   });
 
-  const toggle = (key: string) => {
-    setToggles(prev => ({ ...prev, [key]: !prev[key] } as any));
+  const handleSave = () => {
+    toast.success("Événement enregistré avec succès !");
+  };
+
+  const handleAddGuest = () => {
+    toast.info("Ajouter un invité : Fonctionnalité en cours de développement");
+  };
+
+  const toggle = (key: keyof typeof toggles) => {
+    setToggles(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const locations = ["Antananarivo", "Toamasina", "Antsirabe", "Mahajanga", "Fianarantsoa", "Toliara", "Antsiranana", "Foulpointe"];
@@ -43,7 +52,7 @@ export default function NewEventPage() {
           <h1 className="text-4xl md:text-5xl font-bold text-tba-blue tracking-tight">Créer un événement</h1>
           <p className="text-base text-tba-gray mt-2 font-sans font-normal">Renseignez les informations de votre événement familial</p>
         </div>
-        <button className="btn-primary flex items-center gap-2 py-3 px-8 shadow-xl">
+        <button onClick={handleSave} className="btn-primary flex items-center gap-2 py-3 px-8 shadow-xl">
           <Save size={18} />
           <span>Enregistrer l'événement</span>
         </button>
@@ -173,7 +182,7 @@ export default function NewEventPage() {
                 <UserPlus size={18} className="text-tba-blue" />
                 <h3 className="text-lg font-bold text-tba-blue">Gestion des invités</h3>
               </div>
-              <button className="btn-secondary py-2 px-4 text-xs font-bold">+ Ajouter</button>
+              <button onClick={handleAddGuest} className="btn-secondary py-2 px-4 text-xs font-bold">+ Ajouter</button>
             </div>
               <div className="p-6 space-y-4">
                 <GuestRow initials="SL" name="Sullivan" role="Organisateur" color="from-tba-blue to-tba-cyan" isOrg />
@@ -181,7 +190,10 @@ export default function NewEventPage() {
                 <GuestRow initials="YS" name="Yasina" role="📍 Toamasina" color="from-amber-600 to-amber-400" />
                 
                 <div className="pt-4 border-t border-tba-border text-center">
-                <button className="text-tba-blue text-xs font-bold hover:underline transition-all flex items-center justify-center gap-2 mx-auto">
+                <button 
+                  onClick={() => toast.success("Toute la famille a été invitée !")}
+                  className="text-tba-blue text-xs font-bold hover:underline transition-all flex items-center justify-center gap-2 mx-auto"
+                >
                   <Users size={14} /> Inviter toute la famille
                 </button>
               </div>
@@ -253,7 +265,7 @@ function GuestRow({ initials, name, role, color, isOrg }: any) {
       {isOrg ? (
         <span className="text-[0.65rem] font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">Organisateur</span>
       ) : (
-        <button className="text-tba-red text-xs font-bold hover:text-tba-red-light transition-all">Retirer</button>
+        <button onClick={() => toast.info(`${name} retiré`)} className="text-tba-red text-xs font-bold hover:text-tba-red-light transition-all">Retirer</button>
       )}
     </div>
   );

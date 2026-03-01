@@ -19,6 +19,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { UserStatus, EventStatus, User, Event } from "@/types";
+import { toast } from "sonner";
 
 export default function AdminDashboard() {
   const { isAdmin, isSuperAdmin } = useAuth();
@@ -68,6 +69,7 @@ export default function AdminDashboard() {
         date: "À l'instant", 
         status: action 
       }, ...prev]);
+      toast.success(action === 'approved' ? `Membre ${member.name} approuvé !` : `Membre ${member.name} rejeté.`);
     }
   };
 
@@ -83,6 +85,7 @@ export default function AdminDashboard() {
         date: "À l'instant", 
         status: action 
       }, ...prev]);
+      toast.success(action === 'approved' ? `Événement ${event.title} approuvé !` : `Événement ${event.title} rejeté.`);
     }
   };
 
@@ -224,7 +227,11 @@ function MembersApprovalTable({ members, isSuperAdmin, onAction }: any) {
                     <X size={16} />
                   </button>
                   {isSuperAdmin && (
-                    <button className="p-2 rounded-lg bg-tba-blue/5 text-tba-blue hover:bg-tba-blue hover:text-white transition-all shadow-sm" title="Plus d'options">
+                    <button 
+                      onClick={() => toast.info("Plus d'options pour ce membre...")}
+                      className="p-2 rounded-lg bg-tba-blue/5 text-tba-blue hover:bg-tba-blue hover:text-white transition-all shadow-sm" 
+                      title="Plus d'options"
+                    >
                       <MoreVertical size={16} />
                     </button>
                   )}

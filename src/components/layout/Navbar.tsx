@@ -3,15 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, X, Search, User, ShieldCheck } from "lucide-react";
+import { Bell, Menu, X, Search, User, ShieldCheck, LogOut } from "lucide-react";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) {
+      toast.info(`Recherche de : "${search}"... (Fonctionnalité en cours de développement)`);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] h-16 bg-tba-blue flex items-center justify-between px-6 md:px-10 shadow-lg shadow-tba-blue/20">
@@ -59,10 +68,16 @@ export function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden md:flex items-center bg-white/10 rounded-full px-4 py-1.5 border border-white/10 focus-within:bg-white/20 transition-all">
+        <form onSubmit={handleSearch} className="hidden md:flex items-center bg-white/10 rounded-full px-4 py-1.5 border border-white/10 focus-within:bg-white/20 transition-all">
           <Search size={14} className="text-white/60" />
-          <input type="text" placeholder="Rechercher..." className="bg-transparent border-none outline-none text-xs text-white placeholder:text-white/40 px-2 w-32" />
-        </div>
+          <input 
+            type="text" 
+            placeholder="Rechercher..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-transparent border-none outline-none text-xs text-white placeholder:text-white/40 px-2 w-32" 
+          />
+        </form>
         
         <button 
           onClick={() => setIsNotifOpen(!isNotifOpen)}
@@ -74,7 +89,7 @@ export function Navbar() {
         
         <div className="h-8 w-px bg-white/10 hidden sm:block" />
         
-        <div className="flex items-center gap-3 pl-2 group cursor-pointer">
+        <div className="flex items-center gap-3 pl-2 group cursor-pointer relative">
           <div className="text-right hidden sm:block">
             <div className="text-xs font-bold text-white leading-none">{user?.name || 'Sullivan'}</div>
             <div className="text-[0.6rem] font-bold text-tba-cyan uppercase tracking-tighter">
@@ -88,6 +103,16 @@ export function Navbar() {
               user?.name?.[0] || 'S'
             )}
           </div>
+          <button 
+            onClick={() => {
+              logout();
+              toast.success("Déconnexion réussie !");
+            }}
+            className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center text-tba-blue shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            title="Déconnexion"
+          >
+            <LogOut size={12} />
+          </button>
         </div>
 
         <button 

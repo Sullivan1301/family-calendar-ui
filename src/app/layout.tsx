@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import Script from "next/script";
 
@@ -38,8 +39,10 @@ export default function RootLayout({
               </footer>
             </div>
           </div>
+          <Toaster richColors closeButton position="top-right" />
         </AuthProvider>
       </body>
     </html>
   );
 }
+

@@ -1,13 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, HelpCircle, XCircle, Users, MapPin, Calendar, Lock, MessageCircle, Share2, Edit2, ShieldCheck, AlertCircle } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export default function EventDetailPage() {
   const [rsvp, setRsvp] = useState("yes");
   const { isAdmin } = useAuth();
+  const [comment, setComment] = useState("");
+
+  const handleAction = (action: string) => {
+    toast.info(`${action} : Fonctionnalité en cours de développement`);
+  };
+
+  const handleRSVP = (status: string) => {
+    setRsvp(status);
+    const labels: Record<string, string> = { yes: "Présent", maybe: "Peut-être", no: "Absent" };
+    toast.success(`Votre réponse a été mise à jour : ${labels[status]}`);
+  };
+
+  const handleSendComment = () => {
+    if (comment.trim()) {
+      toast.success("Commentaire envoyé !");
+      setComment("");
+    }
+  };
+
+  // Simulation: We are looking at the "Réunion Famille Pâques 2026" which is on March 29th
+  const eventDate = new Date(2026, 2, 29); // March 29, 2026
 
   return (
     <div className="animate-fade-in">
@@ -15,7 +37,7 @@ export default function EventDetailPage() {
       <div className="bg-linear-to-br from-tba-blue to-tba-cyan rounded-tba p-8 md:p-10 text-white mb-8 relative overflow-hidden shadow-tba-lg">
         <div className="absolute -right-10 -top-10 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
         <div className="absolute -left-10 -bottom-10 w-48 h-48 rounded-full bg-tba-red/10 blur-2xl" />
-        
+
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">
             <span className="inline-flex items-center bg-white/20 backdrop-blur-md text-white rounded-full text-xs font-bold px-4 py-1.5 border border-white/10">
@@ -24,19 +46,18 @@ export default function EventDetailPage() {
             <StatusBadge status="approved" className="bg-white/20 text-white border border-white/10" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">Réunion Famille Pâques 2026</h1>
-          
+
             <div className="flex flex-wrap gap-6 text-sm opacity-90 mb-8">
-              <span className="flex items-center gap-2"><Calendar size={18} className="text-white/70" /> Dimanche 29 mars 2026</span>
+              <span className="flex items-center gap-2"><Calendar size={18} className="text-white/70" /> {eventDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
               <span className="flex items-center gap-2"><MapPin size={18} className="text-white/70" /> Toamasina, Chez Mamitina</span>
               <span className="flex items-center gap-2"><Users size={18} className="text-white/70" /> 12 invités</span>
               <span className="flex items-center gap-2"><Lock size={18} className="text-white/70" /> Famille complète</span>
             </div>
-          
           <div className="flex flex-wrap gap-3">
-            <button className="btn-primary bg-tba-red hover:bg-red-700 flex items-center gap-2 py-3 px-8 shadow-xl">
+            <button onClick={() => handleAction("Modifier")} className="btn-primary bg-tba-red hover:bg-red-700 flex items-center gap-2 py-3 px-8 shadow-xl">
               <Edit2 size={16} /> Modifier l'événement
             </button>
-            <button className="bg-white/10 hover:bg-white/20 text-white font-bold text-sm px-8 py-3 rounded-tba backdrop-blur-sm border border-white/10 transition-all flex items-center gap-2">
+            <button onClick={() => handleAction("Partager")} className="bg-white/10 hover:bg-white/20 text-white font-bold text-sm px-8 py-3 rounded-tba backdrop-blur-sm border border-white/10 transition-all flex items-center gap-2">
               <Share2 size={16} /> Partager
             </button>
           </div>
@@ -55,7 +76,7 @@ export default function EventDetailPage() {
               <p className="text-sm text-muted-foreground mb-6">Confirmez-vous votre présence à cet événement ?</p>
               <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={() => setRsvp("yes")}
+                  onClick={() => handleRSVP("yes")}
                   className={`flex-1 min-w-[140px] p-4 rounded-xl text-center font-bold text-sm transition-all border-2 ${
                     rsvp === "yes"
                       ? "bg-green-600 text-white border-green-600 shadow-lg"
@@ -65,7 +86,7 @@ export default function EventDetailPage() {
                   ✅ Oui, je viens
                 </button>
                 <button
-                  onClick={() => setRsvp("maybe")}
+                  onClick={() => handleRSVP("maybe")}
                   className={`flex-1 min-w-[140px] p-4 rounded-xl text-center font-bold text-sm transition-all border-2 ${
                     rsvp === "maybe"
                       ? "bg-tba-yellow text-tba-text border-tba-yellow shadow-lg"
@@ -75,7 +96,7 @@ export default function EventDetailPage() {
                   🤔 Peut-être
                 </button>
                 <button
-                  onClick={() => setRsvp("no")}
+                  onClick={() => handleRSVP("no")}
                   className={`flex-1 min-w-[140px] p-4 rounded-xl text-center font-bold text-sm transition-all border-2 ${
                     rsvp === "no"
                       ? "bg-tba-red text-white border-tba-red shadow-lg"
@@ -164,8 +185,15 @@ export default function EventDetailPage() {
                   />
                 </div>
               <div className="flex gap-3 pt-4 border-t border-border">
-                <input type="text" className="flex-1 px-4 py-3 rounded-xl bg-muted border-2 border-transparent focus:border-tba-blue focus:bg-white outline-none text-sm transition-all" placeholder="Écrire un commentaire…" />
-                <button className="btn-primary py-3 px-6">Envoyer</button>
+                <input 
+                  type="text" 
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendComment()}
+                  className="flex-1 px-4 py-3 rounded-xl bg-muted border-2 border-transparent focus:border-tba-blue focus:bg-white outline-none text-sm transition-all" 
+                  placeholder="Écrire un commentaire…" 
+                />
+                <button onClick={handleSendComment} className="btn-primary py-3 px-6">Envoyer</button>
               </div>
             </div>
           </div>

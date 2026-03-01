@@ -16,9 +16,15 @@ import {
 } from "lucide-react";
 import { SupportProject } from "./SupportProject";
 
+import { toast } from "sonner";
+
 export function Sidebar() {
   const pathname = usePathname();
   const { isAdmin } = useAuth();
+
+  const handleFilterClick = (type: string, name: string) => {
+    toast.info(`Filtre par ${type} : "${name}"... (Fonctionnalité en cours de développement)`);
+  };
 
   const menuItems = [
     { name: "Tableau de bord", icon: <LayoutDashboard size={18} />, href: "/" },
@@ -85,6 +91,7 @@ export function Sidebar() {
               {types.map((type) => (
                 <span
                   key={type.name}
+                  onClick={() => handleFilterClick("catégorie", type.name)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.65rem] font-bold cursor-pointer border-2 border-white bg-white text-tba-gray hover:border-tba-blue hover:text-tba-blue transition-all shadow-sm"
                 >
                   {type.icon} {type.name}
@@ -101,6 +108,7 @@ export function Sidebar() {
               {locations.map((loc) => (
                 <span
                   key={loc}
+                  onClick={() => handleFilterClick("localisation", loc)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.65rem] font-bold cursor-pointer border-2 border-white bg-white text-tba-gray hover:border-tba-blue hover:text-tba-blue transition-all shadow-sm"
                 >
                   📍 {loc}
@@ -137,10 +145,16 @@ export function Sidebar() {
       <SupportProject />
       
       <div className="mt-8 flex gap-2 pt-6 border-t border-tba-border">
-        <button className="w-10 h-10 rounded-xl bg-tba-surface2 flex items-center justify-center text-tba-gray hover:bg-tba-blue hover:text-white transition-all">
+        <button 
+          onClick={() => toast.info("Paramètres : Fonctionnalité en cours de développement")}
+          className="w-10 h-10 rounded-xl bg-tba-surface2 flex items-center justify-center text-tba-gray hover:bg-tba-blue hover:text-white transition-all"
+        >
           <Settings size={18} />
         </button>
-        <button className="w-10 h-10 rounded-xl bg-tba-surface2 flex items-center justify-center text-tba-gray hover:bg-tba-blue hover:text-white transition-all">
+        <button 
+          onClick={() => toast.info("Aide : Fonctionnalité en cours de développement")}
+          className="w-10 h-10 rounded-xl bg-tba-surface2 flex items-center justify-center text-tba-gray hover:bg-tba-blue hover:text-white transition-all"
+        >
           <HelpCircle size={18} />
         </button>
       </div>

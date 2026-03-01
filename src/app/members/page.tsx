@@ -5,9 +5,15 @@ import { useAuth } from "@/context/AuthContext";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { UserStatus } from "@/types";
 
+import { toast } from "sonner";
+
 export default function MembersPage() {
     const { isAdmin } = useAuth();
     
+    const handleInvite = () => {
+      toast.success("Lien d'invitation généré ! (Fonctionnalité en cours)");
+    };
+
     const members = [
       { id: "1", name: "Sullivan", role: "Super Admin", roleKey: "super-admin", age: 34, loc: "Antananarivo", initials: "SL", bday: "15 avr.", color: "from-tba-blue to-tba-cyan", availability: ["avail", "avail", "avail", "maybe", "avail", "avail", "empty"], status: "active" as UserStatus },
       { id: "2", name: "Anja", role: "Admin", roleKey: "admin", age: 62, loc: "Antananarivo", initials: "AN", bday: "18 mars", color: "from-emerald-700 to-emerald-500", availability: ["avail", "busy", "busy", "avail", "avail", "avail", "avail"], status: "active" as UserStatus },
@@ -26,7 +32,7 @@ export default function MembersPage() {
             <h1 className="text-4xl md:text-5xl font-bold text-tba-blue tracking-tight">Membres de la famille</h1>
             <p className="text-base text-tba-gray mt-2 font-sans font-normal">8 membres · Gérez les profils et validations</p>
         </div>
-        <button className="btn-primary flex items-center gap-2 py-3 px-8">
+        <button onClick={handleInvite} className="btn-primary flex items-center gap-2 py-3 px-8">
           <UserPlus size={18} />
           <span>+ Inviter un membre</span>
         </button>
@@ -37,7 +43,7 @@ export default function MembersPage() {
           <MemberCard key={member.name} {...member} isAdminView={isAdmin} />
         ))}
         {/* Add Member Placeholder */}
-        <div className="border-2 border-dashed border-border rounded-tba p-8 flex flex-col items-center justify-center text-muted-foreground hover:border-tba-blue hover:text-tba-blue transition-all cursor-pointer group">
+        <div onClick={handleInvite} className="border-2 border-dashed border-border rounded-tba p-8 flex flex-col items-center justify-center text-muted-foreground hover:border-tba-blue hover:text-tba-blue transition-all cursor-pointer group">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <UserPlus size={24} />
           </div>
@@ -85,10 +91,16 @@ function MemberCard({ name, role, roleKey, age, loc, initials, bday, color, stat
         )}
 
         <div className="flex gap-2">
-          <button className="flex-1 bg-tba-blue text-white font-bold text-xs py-2.5 rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2">
+          <button 
+            onClick={() => toast.info(`Voir le profil de ${name}`)}
+            className="flex-1 bg-tba-blue text-white font-bold text-xs py-2.5 rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2"
+          >
             <ExternalLink size={14} /> Profil
           </button>
-          <button className="flex-1 border-2 border-tba-blue text-tba-blue font-bold text-xs py-2.5 rounded-xl hover:bg-tba-blue hover:text-white transition-all flex items-center justify-center gap-2">
+          <button 
+            onClick={() => toast.info(`Envoyer un message à ${name}`)}
+            className="flex-1 border-2 border-tba-blue text-tba-blue font-bold text-xs py-2.5 rounded-xl hover:bg-tba-blue hover:text-white transition-all flex items-center justify-center gap-2"
+          >
             <Mail size={14} /> Message
           </button>
         </div>

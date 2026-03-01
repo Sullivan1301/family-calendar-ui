@@ -8,9 +8,15 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { Heart, QrCode, MessageCircle } from "lucide-react";
+import { Heart, QrCode, MessageCircle, Copy } from "lucide-react";
+import { toast } from "sonner";
 
 export function SupportProject() {
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copié dans le presse-papier !`);
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -32,20 +38,30 @@ export function SupportProject() {
         
         <div className="grid gap-6 py-4">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-tba-surface2 border border-tba-border/50 shadow-sm">
+            <div 
+              onClick={() => copyToClipboard("0341060802", "Numéro MVola")}
+              className="flex items-center justify-between p-4 rounded-2xl bg-tba-surface2 border border-tba-border/50 shadow-sm cursor-pointer hover:bg-white hover:shadow-md transition-all group"
+            >
               <div className="flex flex-col">
                 <span className="text-[0.6rem] font-black uppercase tracking-widest text-tba-gray-light">MVola</span>
                 <span className="text-lg font-black text-tba-blue">034 10 608 02</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-[#fcd34d] flex items-center justify-center font-black text-[0.6rem] text-black shadow-sm">M</div>
+              <div className="w-10 h-10 rounded-full bg-[#fcd34d] flex items-center justify-center font-black text-[0.6rem] text-black shadow-sm group-hover:scale-110 transition-transform">
+                <Copy size={14} />
+              </div>
             </div>
             
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-tba-surface2 border border-tba-border/50 shadow-sm">
+            <div 
+              onClick={() => copyToClipboard("0378717959", "Numéro Orange Money")}
+              className="flex items-center justify-between p-4 rounded-2xl bg-tba-surface2 border border-tba-border/50 shadow-sm cursor-pointer hover:bg-white hover:shadow-md transition-all group"
+            >
               <div className="flex flex-col">
                 <span className="text-[0.6rem] font-black uppercase tracking-widest text-tba-gray-light">Orange Money</span>
                 <span className="text-lg font-black text-tba-blue">037 87 179 59</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-[#fb923c] flex items-center justify-center font-black text-[0.6rem] text-white shadow-sm">OM</div>
+              <div className="w-10 h-10 rounded-full bg-[#fb923c] flex items-center justify-center font-black text-[0.6rem] text-white shadow-sm group-hover:scale-110 transition-transform">
+                <Copy size={14} />
+              </div>
             </div>
           </div>
 
@@ -66,6 +82,7 @@ export function SupportProject() {
             href="https://wa.me/261341060802" 
             target="_blank" 
             rel="noopener noreferrer"
+            onClick={() => toast.info("Ouverture de WhatsApp...")}
             className="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-500/20 transition-all active:scale-95"
           >
             <MessageCircle size={20} />
