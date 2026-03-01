@@ -14,6 +14,7 @@ import {
   HelpCircle,
   ShieldCheck
 } from "lucide-react";
+import { SupportProject } from "./SupportProject";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -132,6 +133,8 @@ export function Sidebar() {
           ))}
         </div>
       </div>
+      
+      <SupportProject />
       
       <div className="mt-8 flex gap-2 pt-6 border-t border-tba-border">
         <button className="w-10 h-10 rounded-xl bg-tba-surface2 flex items-center justify-center text-tba-gray hover:bg-tba-blue hover:text-white transition-all">

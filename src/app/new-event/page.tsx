@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Save, Search, UserPlus, MapPin, Calendar, Clock, Lock, ShieldCheck, Bell, MessageSquare, Type, Info, CheckCircle2, AlertCircle } from "lucide-react";
+import { Save, Search, UserPlus, Users, MapPin, Calendar, Clock, Lock, ShieldCheck, Bell, MessageSquare, Type, Info, CheckCircle2, AlertCircle } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EventType } from "@/types";
 
