@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Bitter:wght@600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: 'Bitter', Georgia, serif;
+  
+  /* Palette Tech Bloom Agency */
+  --color-tba-blue: #1E40AF;
+  --color-tba-cyan: #06B6D4;
+  --color-tba-yellow: #FACC15;
+  --color-tba-red: #B8001F;
+  --color-tba-bg-light: #F3F4F6;
+  --color-tba-text: #111827;
+  
+  --color-border: #E5E7EB;
+  --color-input: #E5E7EB;
+  --color-ring: #1E40AF;
+  --color-primary: #1E40AF;
+  --color-secondary: #06B6D4;
+  --color-accent: #B8001F;
+  --color-destructive: #B8001F;
+  --color-muted: #F3F4F6;
+  
+  --shadow-tba: 0 4px 12px rgba(30, 64, 175, 0.08);
+  --shadow-tba-lg: 0 12px 30px rgba(30, 64, 175, 0.12);
+  
+  --radius-tba: 12px;
+  --radius-tba-sm: 6px;
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-fade-in: fadeIn 0.5s ease-out;
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #111827;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bitter', Georgia, serif;
+    @apply text-tba-blue;
+  }
+
+  h1 { @apply text-5xl md:text-[52px] font-bold leading-tight; }
+  h2 { @apply text-3xl md:text-[36px] font-bold leading-tight; }
+  h3 { @apply text-xl md:text-[24px] font-semibold leading-snug; }
+  h4 { @apply text-lg md:text-[20px] font-semibold leading-snug; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-tba-red text-white font-semibold py-2 px-6 rounded-tba shadow-tba hover:opacity-90 transition-all active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-tba-blue text-white font-semibold py-2 px-6 rounded-tba hover:opacity-90 transition-all active:scale-95;
+  }
+
+  .btn-outline {
+    @apply border-2 border-tba-blue text-tba-blue bg-transparent font-semibold py-2 px-6 rounded-tba hover:bg-tba-blue hover:text-white transition-all;
+  }
+
+  .standard-card {
+    @apply bg-white border border-border rounded-tba shadow-tba;
+  }
+}
