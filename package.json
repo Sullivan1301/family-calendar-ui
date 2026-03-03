@@ -48,6 +48,7 @@
         "@tsparticles/engine": "^3.5.0",
         "@tsparticles/react": "^3.0.0",
         "@tsparticles/slim": "^3.5.0",
+        "@vercel/analytics": "^1.6.1",
         "atmn": "^0.0.28",
         "autumn-js": "^0.1.43",
         "bcrypt": "^5.1.1",

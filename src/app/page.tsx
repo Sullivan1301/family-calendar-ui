@@ -116,24 +116,6 @@ export default function Dashboard() {
                 locale={fr}
                 className="rounded-md border shadow-none w-fit mx-auto"
                 components={{
-                  DayContent: ({ date }: any) => {
-                    const dStr = format(date, 'yyyy-MM-dd');
-                    const isHoliday = holidays.some(h => h.date === dStr);
-                    const event = familyEvents.find(e => isSameDay(e.date, date));
-                    const isToday = isSameDay(date, new Date());
-
-                    // Priority: Birthday > Holiday > Event
-                    // We show up to 2 dots max to keep layout clean
-                    return (
-                      <div className={`relative w-full h-full flex items-center justify-center ${isToday ? 'bg-tba-blue/20 rounded-full' : ''}`}>
-                        <span className={`${isToday ? 'font-bold text-tba-blue' : ''}`}>{date.getDate()}</span>
-                        <div className="absolute bottom-1.5 flex gap-0.5 justify-center">
-                          {isHoliday && <span className="w-1.5 h-1.5 rounded-full bg-tba-yellow shadow-sm" />}
-                          {event && <span className={`w-1.5 h-1.5 rounded-full ${event.type === 'birthday' ? 'bg-tba-red' : 'bg-tba-cyan'} shadow-sm`} />}
-                        </div>
-                      </div>
-                    );
-                  }
                 }}
               />
             ) : currentView === 'Semaine' ? (
