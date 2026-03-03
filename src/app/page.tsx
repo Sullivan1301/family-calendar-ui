@@ -13,8 +13,8 @@ import { format, isSameDay } from "date-fns";
 export default function Dashboard() {
   const [currentView, setCurrentView] = useState("Mois");
   const [holidays, setHolidays] = useState<Holiday[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date(2026, 2, 1));
-  const [month, setMonth] = useState<Date>(new Date(2026, 2, 1));
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [month, setMonth] = useState<Date>(new Date());
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
@@ -22,9 +22,9 @@ export default function Dashboard() {
   }, []);
 
   const familyEvents = useMemo(() => [
-    { id: '1', date: new Date(2026, 2, 18), title: '🎂 Anniversaire de Yasina', type: 'birthday' },
-    { id: '2', date: new Date(2026, 2, 29), title: '🐣 Réunion famille Pâques', type: 'event' },
-    { id: '3', date: new Date(2026, 5, 15), title: '💒 Mariage de Rina', type: 'event' },
+    { id: '1', date: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 7), title: '🎂 Anniversaire de Yasina', type: 'birthday' },
+    { id: '2', date: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 14), title: '🐣 Réunion famille Pâques', type: 'event' },
+    { id: '3', date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()), title: '💒 Mariage de Rina', type: 'event' },
   ], []);
 
   const monthStr = format(month, 'yyyy-MM');
@@ -45,7 +45,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-4xl md:text-5xl font-bold text-tba-blue tracking-tight">Bonjour, {user?.name || 'Sullivan'} 👋</h1>
             <p className="text-base text-tba-gray mt-2 font-sans font-normal">
-              Aujourd'hui nous sommes le <span className="font-bold text-tba-blue">dimanche 1er mars 2026</span>
+              Aujourd'hui nous sommes le <span className="font-bold text-tba-blue">{format(new Date(), 'EEEE d MMMM yyyy', { locale: fr })}</span>
             </p>
           </div>
         <div className="flex items-center gap-4">

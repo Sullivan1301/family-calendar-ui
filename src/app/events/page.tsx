@@ -29,7 +29,7 @@ export default function EventDetailPage() {
   };
 
   // Simulation: We are looking at the "Réunion Famille Pâques 2026" which is on March 29th
-  const eventDate = new Date(2026, 2, 29); // March 29, 2026
+  const eventDate = new Date(); // Using current date instead of hardcoded date
 
   return (
     <div className="animate-fade-in">

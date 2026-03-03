@@ -2,6 +2,8 @@
 
 import { Bell, Check, Clock, Calendar, MapPin, X, CheckCheck, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 export function NotificationsPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { isAdmin } = useAuth();
@@ -10,7 +12,7 @@ export function NotificationsPanel({ isOpen, onClose }: { isOpen: boolean; onClo
     const notifications = [
       { id: 1, icon: "👤", iconBg: "bg-tba-yellow/20", text: "<strong>Anja</strong> attend votre validation pour rejoindre la famille.", time: "Il y a 2 heures", read: false, adminOnly: true },
       { id: 2, icon: "💒", iconBg: "bg-tba-blue/10", text: "<strong>Mariage de Rina</strong> : Nouvel événement en attente de validation.", time: "Il y a 5 heures", read: false, adminOnly: true },
-    { id: 3, icon: "🎂", iconBg: "bg-red-100", text: "<strong>Anniversaire de Yasina</strong> dans 3 jours — 18 mars", time: "Hier", read: false },
+    { id: 3, icon: "🎂", iconBg: "bg-red-100", text: "<strong>Anniversaire de Yasina</strong> dans 3 jours — " + format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'd MMMM', { locale: fr }), time: "Hier", read: false },
     { id: 4, icon: "✅", iconBg: "bg-green-100", text: "<strong>Tahina</strong> a confirmé sa présence aux Vacances Foulpointe", time: "Il y a 2 jours", read: true },
   ];
 

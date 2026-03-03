@@ -121,7 +121,7 @@ export default function NewEventPage() {
                   <label className="text-xs font-bold text-tba-gray uppercase tracking-widest">Date de début *</label>
                   <div className="input-with-icon">
                     <Calendar size={16} className="text-tba-gray-light mr-2" />
-                    <input type="date" className="flex-1 bg-transparent border-none outline-none text-sm font-semibold text-tba-blue" defaultValue="2026-03-29" />
+                    <input type="date" className="flex-1 bg-transparent border-none outline-none text-sm font-semibold text-tba-blue" defaultValue={new Date().toISOString().split('T')[0]} />
                   </div>
                 </div>
 
