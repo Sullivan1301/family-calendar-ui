@@ -1,30 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Family Calendar - Application de gestion de calendrier familial
 
-## Getting Started
+## Description
 
-First, run the development server:
+Family Calendar est une application web responsive conçue pour la gestion collaborative du calendrier familial. Elle permet à tous les membres d'une famille de suivre les événements, anniversaires, jours fériés et autres rendez-vous importants.
 
+## Fonctionnalités
+
+- **Calendrier interactif** : Visualisation mensuelle, hebdomadaire et journalière
+- **Gestion des événements** : Création, modification et suppression d'événements familiaux
+- **Système d'authentification** : Différents rôles (membre, administrateur, super-admin)
+- **Notifications** : Alertes pour les événements à venir et les validations requises
+- **Gestion des membres** : Invitation et gestion des membres de la famille
+- **Suivi des disponibilités** : Indication de la disponibilité pour chaque événement
+- **Interface multilingue** : Prise en charge du français
+
+## Technologies utilisées
+
+- **Frontend** : Next.js 16.1.5, React 18.3.1
+- **Styling** : Tailwind CSS, shadcn/ui
+- **Gestion des dates** : date-fns
+- **Icons** : Lucide React
+- **Authentification** : better-auth
+- **Animations** : Framer Motion
+- **Gestion des formulaires** : react-hook-form
+- **Validation** : Zod
+
+## Installation
+
+1. Clonez le dépôt :
+```bash
+git clone <url_du_depot>
+cd Family-Calendar
+```
+
+2. Installez les dépendances :
+```bash
+npm install
+```
+
+3. Démarrez le serveur de développement :
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera disponible à l'adresse http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Structure du projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                 # Pages de l'application (routing Next.js 13+)
+├── components/          # Composants UI réutilisables
+│   ├── layout/          # Composants de mise en page
+│   └── ui/              # Composants UI de base
+├── context/             # Contextes React (ex: AuthContext)
+├── hooks/               # Hooks personnalisés
+├── lib/                 # Fonctions utilitaires
+├── types/               # Définitions TypeScript
+```
 
-## Learn More
+## Variables d'environnement
 
-To learn more about Next.js, take a look at the following resources:
+Créez un fichier `.env.local` à la racine du projet avec les variables nécessaires :
+```
+NEXT_PUBLIC_API_URL=
+DATABASE_URL=
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Déploiement
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Pour produire une version optimisée de l'application :
+```bash
+npm run build
+npm start
+```
 
-## Deploy on Vercel
+## Contribution
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Les contributions sont les bienvenues ! Veuillez d'abord ouvrir un ticket pour discuter des modifications que vous souhaitez apporter.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Licence
+
+Ce projet est une démonstration pour Tech Bloom Agency Madagascar.
