@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getMadagascarHolidays, Holiday } from "@/lib/holidays";
 import { Calendar } from "@/components/ui/calendar";
 import { fr } from "date-fns/locale";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, startOfWeek, addDays, eachDayOfInterval, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
 
 export default function Dashboard() {
   const [currentView, setCurrentView] = useState("Mois");
@@ -27,10 +27,25 @@ export default function Dashboard() {
     { id: '3', date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()), title: '💒 Mariage de Rina', type: 'event' },
   ], []);
 
+  // Fonction pour obtenir les événements d'une date spécifique
+  const getEventsForDate = (date: Date) => {
+    return familyEvents.filter(event => isSameDay(event.date, date));
+  };
+
+  // Calculer les jours de la semaine pour la vue semaine
+  const daysOfWeek = useMemo(() => {
+    const start = startOfWeek(month, { weekStartsOn: 1 });
+    return eachDayOfInterval({
+      start: start,
+      end: addDays(start, 6)
+    });
+  }, [month]);
+
   const monthStr = format(month, 'yyyy-MM');
   const currentMonthHolidays = holidays.filter(h => h.date.startsWith(monthStr));
   const currentMonthEvents = familyEvents.filter(e => format(e.date, 'yyyy-MM') === monthStr);
 
+  // Mise à jour de selectedDayInfo pour s'assurer qu'il fonctionne avec toutes les vues
   const selectedDayInfo = useMemo(() => {
     if (!selectedDate) return null;
     const dStr = format(selectedDate, 'yyyy-MM-dd');
@@ -53,7 +68,11 @@ export default function Dashboard() {
             {["Mois", "Semaine", "Jour"].map((v) => (
               <button
                 key={v}
-                onClick={() => setCurrentView(v)}
+                onClick={() => {
+                  setCurrentView(v);
+                  // Réinitialiser la sélection à aujourd'hui quand on change de vue
+                  setSelectedDate(new Date());
+                }}
                 className={`px-5 py-2 rounded-xl font-bold text-sm transition-all ${
                   currentView === v
                     ? "bg-white text-tba-blue shadow-md"
@@ -87,34 +106,168 @@ export default function Dashboard() {
         {/* Main Calendar Card */}
         <div className="xl:col-span-2 standard-card p-6 overflow-hidden">
           <div className="flex justify-center w-full">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              month={month}
-              onMonthChange={setMonth}
-              locale={fr}
-              className="rounded-md border shadow-none w-fit mx-auto"
-              components={{
-                DayContent: ({ date }: any) => {
-                  const dStr = format(date, 'yyyy-MM-dd');
-                  const isHoliday = holidays.some(h => h.date === dStr);
-                  const event = familyEvents.find(e => isSameDay(e.date, date));
+            {currentView === 'Mois' ? (
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                month={month}
+                onMonthChange={setMonth}
+                locale={fr}
+                className="rounded-md border shadow-none w-fit mx-auto"
+                components={{
+                  DayContent: ({ date }: any) => {
+                    const dStr = format(date, 'yyyy-MM-dd');
+                    const isHoliday = holidays.some(h => h.date === dStr);
+                    const event = familyEvents.find(e => isSameDay(e.date, date));
+                    const isToday = isSameDay(date, new Date());
 
-                  // Priority: Birthday > Holiday > Event
-                  // We show up to 2 dots max to keep layout clean
-                  return (
-                    <div className="relative w-full h-full flex items-center justify-center">
-                      <span>{date.getDate()}</span>
-                      <div className="absolute bottom-1.5 flex gap-0.5 justify-center">
-                        {isHoliday && <span className="w-1 h-1 rounded-full bg-tba-yellow" />}
-                        {event && <span className={`w-1 h-1 rounded-full ${event.type === 'birthday' ? 'bg-tba-red' : 'bg-tba-cyan'}`} />}
+                    // Priority: Birthday > Holiday > Event
+                    // We show up to 2 dots max to keep layout clean
+                    return (
+                      <div className={`relative w-full h-full flex items-center justify-center ${isToday ? 'bg-tba-blue/20 rounded-full' : ''}`}>
+                        <span className={`${isToday ? 'font-bold text-tba-blue' : ''}`}>{date.getDate()}</span>
+                        <div className="absolute bottom-1.5 flex gap-0.5 justify-center">
+                          {isHoliday && <span className="w-1.5 h-1.5 rounded-full bg-tba-yellow shadow-sm" />}
+                          {event && <span className={`w-1.5 h-1.5 rounded-full ${event.type === 'birthday' ? 'bg-tba-red' : 'bg-tba-cyan'} shadow-sm`} />}
+                        </div>
                       </div>
+                    );
+                  }
+                }}
+              />
+            ) : currentView === 'Semaine' ? (
+              <div className="bg-white rounded-lg border border-border shadow-sm p-4 w-full max-w-4xl">
+                <div className="flex justify-between items-center mb-4">
+                  <button 
+                    onClick={() => setMonth(subMonths(month, 1))}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    &lt;
+                  </button>
+                  <h2 className="font-bold text-tba-blue">
+                    Semaine du {format(startOfWeek(month, { weekStartsOn: 1 }), 'd MMM yyyy')} - {format(addDays(startOfWeek(month, { weekStartsOn: 1 }), 6), 'd MMM yyyy')}
+                  </h2>
+                  <button 
+                    onClick={() => setMonth(addMonths(month, 1))}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    &gt;
+                  </button>
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day, index) => (
+                    <div key={index} className="text-center text-xs font-bold text-tba-gray py-2 border-b border-gray-100">
+                      {day}
                     </div>
-                  );
-                }
-              }}
-            />
+                  ))}
+                  {daysOfWeek.map((date) => {
+                    const dStr = format(date, 'yyyy-MM-dd');
+                    const isHoliday = holidays.some(h => h.date === dStr);
+                    const events = getEventsForDate(date);
+                    const isToday = isSameDay(date, new Date());
+                    const isSelected = selectedDate && isSameDay(date, selectedDate);
+                    
+                    return (
+                      <div 
+                        key={date.toString()} 
+                        className={`min-h-24 p-1 border rounded cursor-pointer transition-all ${
+                          isSelected 
+                            ? 'bg-tba-blue/30 border-tba-blue shadow-inner' 
+                            : isToday 
+                              ? 'bg-tba-blue/10 border-tba-blue' 
+                              : 'border-transparent hover:bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedDate(date)}
+                      >
+                        <div className={`text-right pr-1 text-sm font-medium ${
+                          isToday ? 'font-bold text-tba-blue' : isSelected ? 'text-tba-blue' : ''
+                        }`}>
+                          {date.getDate()}
+                        </div>
+                        <div className="flex flex-wrap gap-0.5 justify-center mt-1">
+                          {isHoliday && <span className="w-2 h-2 rounded-full bg-tba-yellow" />}
+                          {events.slice(0, 2).map((event, idx) => ( // Limiter à 2 événements pour ne pas encombrer
+                            <span key={idx} className={`w-2 h-2 rounded-full ${event.type === 'birthday' ? 'bg-tba-red' : 'bg-tba-cyan'}`} />
+                          ))}
+                          {events.length > 2 && (
+                            <span className="text-[0.6rem] text-gray-500">+{events.length - 2}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg border border-border shadow-sm p-6 w-full max-w-2xl">
+                <div className="flex justify-between items-center mb-6">
+                  <button 
+                    onClick={() => setSelectedDate(addDays(selectedDate || new Date(), -1))}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    &lt;
+                  </button>
+                  <h2 className="font-bold text-xl text-tba-blue">
+                    {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: fr }) : format(new Date(), 'd MMMM yyyy', { locale: fr })}
+                  </h2>
+                  <button 
+                    onClick={() => setSelectedDate(addDays(selectedDate || new Date(), 1))}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    &gt;
+                  </button>
+                </div>
+                
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {selectedDate && (() => {
+                    const dStr = format(selectedDate, 'yyyy-MM-dd');
+                    const dayHolidays = holidays.filter(h => h.date === dStr);
+                    const dayEvents = getEventsForDate(selectedDate);
+                    
+                    if (dayHolidays.length === 0 && dayEvents.length === 0) {
+                      return (
+                        <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg">
+                          <p className="font-medium">Aucun événement pour cette journée</p>
+                          <p className="text-sm mt-1">Sélectionnez un autre jour ou créez un nouvel événement</p>
+                        </div>
+                      );
+                    }
+                    
+                    return [
+                      ...dayHolidays.map((holiday, idx) => (
+                        <div key={`holiday-${idx}`} className="p-4 border rounded-lg bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200">
+                          <div className="flex items-start">
+                            <div className="mr-3 mt-0.5">
+                              <div className="w-3 h-3 rounded-full bg-tba-yellow"></div>
+                            </div>
+                            <div>
+                              <div className="font-bold text-tba-yellow text-sm uppercase tracking-wide">Jour férié</div>
+                              <div className="font-medium text-gray-800">{holiday.localName}</div>
+                            </div>
+                          </div>
+                        </div>
+                      )),
+                      ...dayEvents.map((event, idx) => (
+                        <div key={`event-${idx}`} className="p-4 border rounded-lg bg-gradient-to-r from-cyan-50 to-cyan-100 border-cyan-200">
+                          <div className="flex items-start">
+                            <div className="mr-3 mt-0.5">
+                              <div className={`w-3 h-3 rounded-full ${event.type === 'birthday' ? 'bg-tba-red' : 'bg-tba-cyan'}`}></div>
+                            </div>
+                            <div>
+                              <div className="font-bold text-tba-cyan text-sm uppercase tracking-wide">
+                                {event.type === 'birthday' ? 'Anniversaire' : 'Événement'}
+                              </div>
+                              <div className="font-medium text-gray-800">{event.title}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ];
+                  })()}
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="mt-8 pt-6 border-t border-border flex flex-wrap gap-6 justify-center">
