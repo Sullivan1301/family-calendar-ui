@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { PartyPopper, Users, Clock, CheckCircle, ShieldCheck, AlertCircle, Calendar as CalendarIcon, Info } from "lucide-react";
+import { Calendar as CalendarIcon, Info } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { getMadagascarHolidays, Holiday } from "../lib/holidays";
 import { Calendar } from "../components/ui/calendar";
 import { fr } from "date-fns/locale";
-import { format, isSameDay, startOfWeek, addDays, eachDayOfInterval, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
+import { format, isSameDay, startOfWeek, addDays, eachDayOfInterval } from "date-fns";
 
 export default function Dashboard() {
   const [currentView, setCurrentView] = useState("Mois");

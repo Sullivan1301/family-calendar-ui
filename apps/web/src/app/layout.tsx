@@ -4,7 +4,6 @@ import { Sidebar } from "../components/layout/Sidebar";
 import { AuthProvider } from "../context/AuthContext";
 import { Toaster } from "../components/ui/sonner";
 import "./globals.css";
-import Script from "next/script";
 import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {

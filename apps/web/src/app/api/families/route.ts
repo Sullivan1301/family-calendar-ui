@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
-import { families, familyMembers, userRoles, invitations } from '@/lib/drizzle/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { families, familyMembers } from '@/lib/drizzle/schema';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { auth } from '@/lib/auth/config';
-import { generateInvitationCode, canManageFamily } from '@/lib/permissions';
+import { generateInvitationCode } from '@/lib/permissions';
 
 const createFamilySchema = z.object({
   name: z.string().min(2).max(255),

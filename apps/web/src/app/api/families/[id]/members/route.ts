@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
-import { familyMembers, users, userRoles } from '@/lib/drizzle/schema';
+import { familyMembers, userRoles } from '@/lib/drizzle/schema';
 import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth/config';
-import { canManageFamily } from '@/lib/permissions';
 
 // GET /api/families/[id]/members - Liste des membres d'une famille
 export async function GET(

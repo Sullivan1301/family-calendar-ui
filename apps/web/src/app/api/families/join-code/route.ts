@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
-import { families, familyMembers, userRoles, invitations } from '@/lib/drizzle/schema';
+import { families, familyMembers, userRoles } from '@/lib/drizzle/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { auth } from '@/lib/auth/config';

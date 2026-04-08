@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
 import { invitations, familyMembers, userRoles, notifications } from '@/lib/drizzle/schema';
-import { eq, and, lt } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth/config';
 
 // POST /api/invitations/[token]/accept - Accepter une invitation

@@ -1,5 +1,5 @@
 import { db } from '@/lib/drizzle/db';
-import { userRoles, familyMembers, families, events } from '@/lib/drizzle/schema';
+import { userRoles, familyMembers, events } from '@/lib/drizzle/schema';
 import { eq, and } from 'drizzle-orm';
 import type { Role } from '@/lib/drizzle/schema';
 

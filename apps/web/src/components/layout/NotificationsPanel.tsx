@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check, Clock, Calendar, MapPin, X, CheckCheck, ShieldAlert } from "lucide-react";
+import { Bell, Clock, CheckCheck, ShieldAlert } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";

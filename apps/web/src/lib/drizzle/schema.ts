@@ -9,7 +9,6 @@ import {
   pgEnum,
   primaryKey,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
 
 // Enums
 export const roleEnum = pgEnum('role', ['super-admin', 'admin', 'member']);

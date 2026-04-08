@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
-import { events, eventGuests, eventHistory, notifications, eventComments } from '@/lib/drizzle/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { events, eventGuests, eventHistory } from '@/lib/drizzle/schema';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { auth } from '@/lib/auth/config';
-import { canEditEvent, canDeleteEvent, isFamilyMember, canManageFamily } from '@/lib/permissions';
+import { canEditEvent, canDeleteEvent, isFamilyMember } from '@/lib/permissions';
 
 const updateEventSchema = z.object({
   title: z.string().min(1).max(255).optional(),

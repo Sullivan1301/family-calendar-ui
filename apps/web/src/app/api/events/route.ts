@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
 import { events, eventGuests, eventHistory, notifications } from '@/lib/drizzle/schema';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { auth } from '@/lib/auth/config';
-import { isFamilyMember, canManageFamily, getUserRole } from '@/lib/permissions';
+import { isFamilyMember, getUserRole } from '@/lib/permissions';
 import type { EventType, EventStatus } from '@/lib/drizzle/schema';
 
 const createEventSchema = z.object({
@@ -80,10 +80,10 @@ export async function GET(req: NextRequest) {
       orderBy: desc(events.startDate),
     });
 
-    const results = await query;
+    const events = await query;
 
     // Filtrer par date si spécifié
-    let filtered = results;
+    let filtered = events;
     if (start) {
       filtered = filtered.filter(e => new Date(e.startDate) >= new Date(start));
     }

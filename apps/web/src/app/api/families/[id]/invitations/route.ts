@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
-import { families, invitations, notifications } from '@/lib/drizzle/schema';
-import { eq, and } from 'drizzle-orm';
+import { families, invitations } from '@/lib/drizzle/schema';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { auth } from '@/lib/auth/config';
 import { canInviteToFamily } from '@/lib/permissions';

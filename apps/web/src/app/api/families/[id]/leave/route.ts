@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
-import { familyMembers, userRoles, families } from '@/lib/drizzle/schema';
-import { eq, and, count } from 'drizzle-orm';
+import { familyMembers, userRoles } from '@/lib/drizzle/schema';
+import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth/config';
-import { canManageFamily } from '@/lib/permissions';
 
 // POST /api/families/[id]/leave - Quitter une famille
 export async function POST(

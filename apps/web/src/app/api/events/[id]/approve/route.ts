@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
-import { events, eventHistory, notifications, userRoles } from '@/lib/drizzle/schema';
-import { eq, and } from 'drizzle-orm';
+import { events, eventHistory, notifications } from '@/lib/drizzle/schema';
+import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth/config';
-import { canApproveEvent, isFamilyMember } from '@/lib/permissions';
+import { canApproveEvent } from '@/lib/permissions';
 
 // POST /api/events/[id]/approve - Approuver un événement
 export async function POST(

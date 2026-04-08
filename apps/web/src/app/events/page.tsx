@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CheckCircle, HelpCircle, XCircle, Users, MapPin, Calendar, Lock, MessageCircle, Share2, Edit2, ShieldCheck, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { Users, MapPin, Calendar, Lock, Edit2, Share2 } from "lucide-react";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "sonner";
