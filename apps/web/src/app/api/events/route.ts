@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
 import { events, eventGuests, eventHistory, notifications } from '@/lib/drizzle/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { auth } from '@/lib/auth/config';
 import { isFamilyMember, getUserRole } from '@/lib/permissions';

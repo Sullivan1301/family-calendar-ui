@@ -15,12 +15,19 @@ export default {
   		},
   		colors: {
   			tba: {
-  				blue: '#1E40AF',
-  				cyan: '#06B6D4',
-  				yellow: '#FACC15',
-  				red: '#B8001F',
+  				blue: 'hsl(var(--tba-blue))',
+  				'blue-dark': 'hsl(var(--tba-blue-dark))',
+  				'blue-light': 'hsl(var(--tba-blue-light))',
+  				red: 'hsl(var(--tba-red))',
+  				'red-light': 'hsl(var(--tba-red-light))',
+  				cyan: 'hsl(var(--tba-cyan))',
+  				'cyan-light': 'hsl(var(--tba-cyan-light))',
+  				yellow: 'hsl(var(--tba-yellow))',
+  				surface: 'hsl(var(--tba-surface))',
+  				'surface-2': 'hsl(var(--tba-surface-2))',
   				'bg-light': '#F3F4F6',
-  				text: '#111827'
+  				text: '#111827',
+  				gray: '#6B7280'
   			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

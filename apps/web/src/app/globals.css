@@ -54,6 +54,7 @@
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.15);
   --shadow-glow-blue: 0 0 40px rgb(37 99 235 / 0.2);
   --shadow-glow-red: 0 0 40px rgb(220 38 38 / 0.15);
+}
 
 .dark {
   --background: 222.2 84% 4.9%;

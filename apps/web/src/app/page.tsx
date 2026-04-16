@@ -8,7 +8,7 @@ import { StatusBadge } from "../components/ui/StatusBadge";
 import { getMadagascarHolidays, Holiday } from "../lib/holidays";
 import { Calendar } from "../components/ui/calendar";
 import { fr } from "date-fns/locale";
-import { format, isSameDay, startOfWeek, addDays, eachDayOfInterval } from "date-fns";
+import { format, isSameDay, startOfWeek, addDays, eachDayOfInterval, subMonths, addMonths } from "date-fns";
 
 export default function Dashboard() {
   const [currentView, setCurrentView] = useState("Mois");
