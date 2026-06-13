@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, X, Search, User, ShieldCheck, LogOut } from "lucide-react";
+import { Bell, Menu, X, Search, LogOut, ChevronDown, ShieldCheck } from "lucide-react";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -13,7 +13,15 @@ export function Navbar() {
   const { user, isAdmin, logout } = useAuth();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,137 +30,165 @@ export function Navbar() {
     }
   };
 
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] h-16 bg-tba-blue flex items-center justify-between px-6 md:px-10 shadow-lg shadow-tba-blue/20">
-      <Link href="/" className="flex items-center gap-3 font-serif font-black text-2xl text-white tracking-tight group">
-        <span className="bg-white text-tba-blue w-10 h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">T</span>
-        <div className="flex flex-col leading-none">
-          <span className="text-xl">BA</span>
-          <span className="text-[0.6rem] font-sans font-black tracking-[0.2em] text-tba-cyan">FAMILIAL</span>
-        </div>
-      </Link>
-      
-      <div className="hidden lg:flex items-center gap-2">
-        {[
-          { name: "Tableau de bord", href: "/" },
-          { name: "Événements", href: "/events" },
-          { name: "Membres", href: "/members" },
-        ].map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`text-xs font-bold px-5 py-2.5 rounded-full transition-all uppercase tracking-wider ${
-              pathname === item.href
-                ? "bg-white/20 text-white backdrop-blur-md border border-white/10"
-                : "text-white/70 hover:text-white hover:bg-white/10"
-            }`}
-          >
-            {item.name}
-          </Link>
-        ))}
-        {isAdmin && (
-          <Link
-            href="/admin"
-            className={`text-xs font-bold px-5 py-2.5 rounded-full transition-all uppercase tracking-wider flex items-center gap-2 ${
-              pathname === "/admin"
-                ? "bg-white/20 text-white backdrop-blur-md border border-white/10"
-                : "text-tba-yellow hover:text-white hover:bg-white/10"
-            }`}
-          >
-            <ShieldCheck size={14} /> Admin
-          </Link>
-        )}
-        <Link href="/new-event" className="bg-tba-red text-white font-bold py-2 px-6 ml-4 text-xs tracking-widest uppercase rounded-full hover:opacity-90 transition-all shadow-lg shadow-tba-red/20">
-          + Nouveau
-        </Link>
-      </div>
+  const navLinks = [
+    { name: "Tableau de bord", href: "/" },
+    { name: "Événements", href: "/events" },
+    { name: "Membres", href: "/members" },
+  ];
 
-      <div className="flex items-center gap-4">
-        <form onSubmit={handleSearch} className="hidden md:flex items-center bg-white/10 rounded-full px-4 py-1.5 border border-white/10 focus-within:bg-white/20 transition-all">
-          <Search size={14} className="text-white/60" />
-          <input 
-            type="text" 
-            placeholder="Rechercher..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent border-none outline-none text-xs text-white placeholder:text-white/40 px-2 w-32" 
-          />
-        </form>
-        
-        <button 
-          onClick={() => setIsNotifOpen(!isNotifOpen)}
-          className="relative w-10 h-10 rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-all group"
-        >
-          <Bell size={20} className="group-hover:animate-pulse" />
-          <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-tba-red border-2 border-tba-blue shadow-sm"></span>
-        </button>
-        
-        <div className="h-8 w-px bg-white/10 hidden sm:block" />
-        
-        <div className="flex items-center gap-3 pl-2 group cursor-pointer relative">
-          <div className="text-right hidden sm:block">
-            <div className="text-xs font-bold text-white leading-none">{user?.name || 'Sullivan'}</div>
-            <div className="text-[0.6rem] font-bold text-tba-cyan uppercase tracking-tighter">
-              {isAdmin ? 'Super Admin' : 'Membre Famille'}
-            </div>
+  return (
+    <>
+      <nav className={`fixed top-0 left-0 right-0 z-[100] h-14 bg-gradient-to-r from-tba-blue via-tba-blue to-[#1a3578] flex items-center justify-between px-6 md:px-8 transition-shadow duration-300 ${scrolled ? "shadow-lg shadow-tba-blue/20" : ""}`}>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <span className="bg-white text-tba-blue w-8 h-8 rounded-lg flex items-center justify-center font-serif font-bold text-lg shadow-md group-hover:rotate-6 transition-transform duration-300">T</span>
+          <div className="flex flex-col leading-none">
+            <span className="text-white font-serif font-bold text-lg tracking-tight">BA</span>
+            <span className="text-[0.55rem] font-semibold tracking-[0.15em] text-tba-cyan/80">FAMILIAL</span>
           </div>
-          <div className="w-10 h-10 rounded-full bg-linear-to-br from-tba-cyan to-tba-blue border-2 border-white/40 flex items-center justify-center font-black text-sm text-white shadow-md group-hover:scale-110 transition-transform overflow-hidden">
-            {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-            ) : (
-              user?.name?.[0] || 'S'
+        </Link>
+
+        <div className="hidden lg:flex items-center gap-1">
+          {navLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`relative text-[0.8rem] font-medium px-4 py-2 rounded-lg transition-all duration-200 ${
+                pathname === item.href
+                  ? "text-white bg-white/15"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {item.name}
+              {pathname === item.href && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-white/80 rounded-full" />
+              )}
+            </Link>
+          ))}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={`relative text-[0.8rem] font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5 ${
+                pathname === "/admin"
+                  ? "text-white bg-white/15"
+                  : "text-tba-yellow/80 hover:text-tba-yellow hover:bg-white/5"
+              }`}
+            >
+              <ShieldCheck size={13} /> Admin
+              {pathname === "/admin" && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-white/80 rounded-full" />
+              )}
+            </Link>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <form onSubmit={handleSearch} className="hidden md:flex items-center bg-white/8 backdrop-blur-sm rounded-lg px-3.5 py-1.5 border border-white/10 focus-within:bg-white/15 focus-within:border-white/20 transition-all duration-200">
+            <Search size={14} className="text-white/50" />
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-transparent border-none outline-none text-xs text-white placeholder:text-white/30 px-2.5 w-36"
+            />
+          </form>
+
+          <button
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+            className="relative w-9 h-9 rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
+          >
+            <Bell size={18} />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tba-red border-2 border-tba-blue" />
+          </button>
+
+          <div className="h-6 w-px bg-white/10 hidden sm:block" />
+
+          <div className="relative">
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center gap-2.5 group cursor-pointer"
+            >
+              <div className="text-right hidden sm:block">
+                <div className="text-xs font-semibold text-white leading-none">{user?.name || "Sullivan"}</div>
+                <div className="text-[0.6rem] font-medium text-tba-cyan/70 leading-none mt-0.5">
+                  {isAdmin ? "Super Admin" : "Membre Famille"}
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-tba-cyan to-tba-blue border-2 border-white/30 flex items-center justify-center font-bold text-xs text-white group-hover:scale-105 transition-transform duration-200">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  user?.name?.[0] || "S"
+                )}
+              </div>
+              <ChevronDown size={14} className="text-white/40 hidden sm:block" />
+            </button>
+
+            {isProfileOpen && (
+              <>
+                <div className="fixed inset-0 z-[110]" onClick={() => setIsProfileOpen(false)} />
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-tba-lg border border-tba-border py-1.5 z-[120] animate-scale-in">
+                  <Link
+                    href="/members"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-tba-gray hover:bg-tba-surface hover:text-tba-blue transition-colors"
+                  >
+                    Mon profil
+                  </Link>
+                  <div className="h-px bg-tba-border mx-3 my-1" />
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      logout();
+                      toast.success("Déconnexion réussie !");
+                    }}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-tba-red hover:bg-red-50 transition-colors w-full text-left"
+                  >
+                    <LogOut size={14} /> Déconnexion
+                  </button>
+                </div>
+              </>
             )}
           </div>
-          <button 
-            onClick={() => {
-              logout();
-              toast.success("Déconnexion réussie !");
-            }}
-            className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center text-tba-blue shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-            title="Déconnexion"
+
+          <button
+            className="lg:hidden w-9 h-9 flex items-center justify-center text-white/70 hover:text-white"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <LogOut size={12} />
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
 
-        <button 
-          className="lg:hidden w-10 h-10 flex items-center justify-center text-white"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-0 right-0 bg-tba-blue/95 backdrop-blur-xl border-t border-white/10 p-4 flex flex-col gap-2 lg:hidden animate-fade-in shadow-2xl">
+            {[
+              { name: "Tableau de bord", href: "/" },
+              { name: "Événements", href: "/events" },
+              { name: "Membres", href: "/members" },
+              { name: "Administration", href: "/admin", adminOnly: true },
+              { name: "Créer un événement", href: "/new-event" },
+            ].map((item) => {
+              if (item.adminOnly && !isAdmin) return null;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`text-sm font-medium p-3.5 rounded-xl transition-all duration-200 ${
+                    pathname === item.href
+                      ? "bg-white/15 text-white"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-tba-blue border-t border-white/10 p-6 flex flex-col gap-4 lg:hidden animate-fade-in shadow-2xl">
-          {[
-            { name: "Tableau de bord", href: "/" },
-            { name: "Événements", href: "/events" },
-            { name: "Membres", href: "/members" },
-            { name: "Administration", href: "/admin", adminOnly: true },
-            { name: "Créer un événement", href: "/new-event" },
-          ].map((item) => {
-            if (item.adminOnly && !isAdmin) return null;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-sm font-bold p-4 rounded-xl transition-all ${
-                  pathname === item.href
-                    ? "bg-white/20 text-white"
-                    : "text-white/70 bg-white/5"
-                }`}
-              >
-                {item.name}
-              </Link>
-            );
-          })}
-        </div>
-      )}
-
-      <NotificationsPanel isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
-    </nav>
+        <NotificationsPanel isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+      </nav>
+    </>
   );
 }
