@@ -10,14 +10,14 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   const getStatusStyles = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'bg-tba-yellow text-tba-text font-medium';
+        return 'bg-tba-yellow/10 text-tba-yellow font-medium';
       case 'approved':
       case 'active':
-        return 'bg-green-100 text-green-700 font-medium';
+        return 'bg-emerald-50 text-emerald-600 font-medium';
       case 'rejected':
-        return 'bg-tba-red/10 text-tba-red font-medium';
+        return 'bg-tba-red/8 text-tba-red font-medium';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-tba-surface text-tba-gray font-medium';
     }
   };
 
@@ -33,7 +33,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
 
   return (
     <span className={cn(
-      "px-2.5 py-0.5 rounded-full text-xs transition-all animate-fade-in",
+      "px-2.5 py-0.5 rounded-full text-xs transition-all duration-200 animate-fade-in",
       getStatusStyles(status),
       className
     )}>
