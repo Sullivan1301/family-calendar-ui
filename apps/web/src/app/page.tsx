@@ -9,23 +9,42 @@ import { getMadagascarHolidays, Holiday } from "../lib/holidays";
 import { Calendar } from "../components/ui/calendar";
 import { fr } from "date-fns/locale";
 import { format, isSameDay, startOfWeek, addDays, eachDayOfInterval, subMonths, addMonths } from "date-fns";
+import { useApi } from "../hooks/useApi";
+
+const typeEmoji: Record<string, string> = {
+  mariage: '💒',
+  'baptême': '👶',
+  'anniversaire de décès': '🕯️',
+  'événement global': '🌍',
+  autre: '🐣',
+};
 
 export default function Dashboard() {
   const [currentView, setCurrentView] = useState("Mois");
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [month, setMonth] = useState<Date>(new Date());
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, activeFamily } = useAuth();
 
   useEffect(() => {
     getMadagascarHolidays(2026).then(setHolidays);
   }, []);
 
-  const familyEvents = useMemo(() => [
-    { id: '1', date: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 7), title: '🎂 Anniversaire de Yasina', type: 'birthday' },
-    { id: '2', date: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 14), title: '🐣 Réunion famille Pâques', type: 'event' },
-    { id: '3', date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()), title: '💒 Mariage de Rina', type: 'event' },
-  ], []);
+  const { data: eventsData } = useApi<{ events: any[] }>(
+    activeFamily ? `/api/events?familyId=${activeFamily.id}` : null
+  );
+
+  const familyEvents = useMemo(() => {
+    if (eventsData?.events) {
+      return eventsData.events.map((e: any) => ({
+        id: e.id,
+        date: new Date(e.startDate),
+        title: `${typeEmoji[e.type] || '📅'} ${e.title}`,
+        type: e.type === 'mariage' || e.type === 'baptême' ? 'event' : e.type === 'autre' ? 'birthday' : 'event',
+      }));
+    }
+    return [];
+  }, [eventsData]);
 
   // Fonction pour obtenir les événements d'une date spécifique
   const getEventsForDate = (date: Date) => {
@@ -91,14 +110,14 @@ export default function Dashboard() {
 
       {/* Stats Quick View */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon="🎉" color="bg-tba-blue/10 text-tba-blue" value="12" label="Événements cette année" />
-        <StatCard icon="👨‍👩‍👧‍👦" color="bg-tba-cyan/10 text-tba-cyan" value="7" label="Membres actifs" />
+        <StatCard icon="🎉" color="bg-tba-blue/10 text-tba-blue" value={String(familyEvents.length)} label="Événements cette année" />
+        <StatCard icon="👨‍👩‍👧‍👦" color="bg-tba-cyan/10 text-tba-cyan" value={activeFamily ? "—" : "—"} label="Membres actifs" />
         {isAdmin ? (
-          <StatCard icon="🛡️" color="bg-tba-yellow/20 text-tba-text" value="2" label="Validations en attente" />
+          <StatCard icon="🛡️" color="bg-tba-yellow/20 text-tba-text" value={String(familyEvents.filter(e => e.type === 'pending').length)} label="Validations en attente" />
         ) : (
-          <StatCard icon="⏳" color="bg-tba-red/10 text-tba-red" value="4" label="RSVP en attente" />
+          <StatCard icon="⏳" color="bg-tba-red/10 text-tba-red" value={String(familyEvents.filter(e => e.type === 'pending').length)} label="RSVP en attente" />
         )}
-        <StatCard icon="✅" color="bg-green-100 text-green-600" value="71%" label="Disponibilité moy." />
+        <StatCard icon="✅" color="bg-green-100 text-green-600" value={String(familyEvents.length > 0 ? "100%" : "—")} label="Disponibilité moy." />
       </div>
 
       {/* Calendar Section */}

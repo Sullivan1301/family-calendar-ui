@@ -8,23 +8,24 @@ export const auth = betterAuth({
     provider: 'pg',
     schema: {
       user: schema.users,
-      // better-auth génère automatiquement les tables de session, account, etc.
+      session: schema.sessions,
+      account: schema.accounts,
+      verification: schema.verifications,
     },
   }),
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  secret: process.env.BETTER_AUTH_SECRET || 'dev-secret-min-32-chars-long-enough',
   emailAndPassword: {
     enabled: true,
   },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
-  callbacks: {
-    async afterCreateUser(user) {
-      // Créer automatiquement un rôle member par défaut
-      // (sera remplacé quand l'utilisateur rejoint une famille)
-      console.log('User created:', user);
-    },
-  },
+  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? {
+        socialProviders: {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          },
+        },
+      }
+    : {}),
 });

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { 
-  Users, 
-  PartyPopper, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  ShieldCheck, 
+import { useState, useMemo } from "react";
+import {
+  Users,
+  PartyPopper,
+  CheckCircle,
+  XCircle,
+  Clock,
+  ShieldCheck,
   Filter,
   Search,
   MoreVertical,
@@ -20,27 +20,35 @@ import { useAuth } from "../../context/AuthContext";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { UserStatus, EventStatus, User, Event } from "../../types";
 import { toast } from "sonner";
+import { useApi, apiPost } from "../../hooks/useApi";
 
 export default function AdminDashboard() {
-  const { isAdmin, isSuperAdmin } = useAuth();
+  const { isAdmin, isSuperAdmin, activeFamily } = useAuth();
   const [activeTab, setActiveTab] = useState<'members' | 'events' | 'history'>('members');
 
-  // Mock data for validations
-  const [pendingMembers, setPendingMembers] = useState<any[]>([
-    { id: "1", name: "Anja", email: "anja@tba.mg", date: "01/03/2026", status: "pending" as UserStatus, avatar: "AN" },
-    { id: "2", name: "Tahina", email: "tahina@tba.mg", date: "28/02/2026", status: "pending" as UserStatus, avatar: "TH" },
-  ]);
+  const { data: eventsData, refetch: refetchEvents } = useApi<{ events: any[] }>(
+    activeFamily ? `/api/events?familyId=${activeFamily.id}` : null
+  );
+  const { data: membersData, refetch: refetchMembers } = useApi<{ members: any[] }>(
+    activeFamily ? `/api/families/${activeFamily.id}/members` : null
+  );
 
-  const [pendingEvents, setPendingEvents] = useState<any[]>([
-    { id: "e1", title: "Mariage de Rina", type: "Mariage", date: "15/08/2026", creator: "Rina", status: "pending" as EventStatus },
-    { id: "e2", title: "Baptême de Nayah", type: "Baptême", date: "22/05/2026", creator: "Tahina", status: "pending" as EventStatus },
-  ]);
+  const [history, setHistory] = useState<any[]>([]);
 
-  const [history, setHistory] = useState<any[]>([
-    { id: "h1", action: "Approbation Membre", target: "Nayah", admin: "Sullivan", date: "Aujourd'hui, 10:30", status: "approved" },
-    { id: "h2", action: "Approbation Événement", target: "Anniversaire Mamitina", admin: "Sullivan", date: "Hier, 15:45", status: "approved" },
-    { id: "h3", action: "Rejet Membre", target: "Inconnu", admin: "Sullivan", date: "26/02/2026", status: "rejected" },
-  ]);
+  const pendingMembers = useMemo(() => {
+    return (membersData?.members || []).filter((m: any) => m.status === 'pending');
+  }, [membersData]);
+
+  const pendingEvents = useMemo(() => {
+    return (eventsData?.events || []).filter((e: any) => e.status === 'pending').map((e: any) => ({
+      id: e.id,
+      title: e.title,
+      type: e.type,
+      date: new Date(e.startDate).toLocaleDateString('fr-FR'),
+      creator: e.createdByUser?.name || 'Inconnu',
+      status: e.status as EventStatus,
+    }));
+  }, [eventsData]);
 
   if (!isAdmin) {
     return (
@@ -73,19 +81,24 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleEventAction = (id: string, action: 'approved' | 'rejected') => {
+  const handleEventAction = async (id: string, action: 'approved' | 'rejected') => {
     const event = pendingEvents.find(e => e.id === id);
-    if (event) {
-      setPendingEvents(prev => prev.filter(e => e.id !== id));
-      setHistory(prev => [{ 
-        id: Date.now().toString(), 
-        action: action === 'approved' ? "Approbation Événement" : "Rejet Événement", 
-        target: event.title, 
-        admin: "Sullivan", 
-        date: "À l'instant", 
-        status: action 
+    if (!event) return;
+
+    try {
+      await apiPost(`/api/events/${id}/${action}`);
+      toast.success(action === 'approved' ? `Événement "${event.title}" approuvé !` : `Événement "${event.title}" rejeté.`);
+      setHistory(prev => [{
+        id: Date.now().toString(),
+        action: action === 'approved' ? "Approbation Événement" : "Rejet Événement",
+        target: event.title,
+        admin: "Sullivan",
+        date: "À l'instant",
+        status: action
       }, ...prev]);
-      toast.success(action === 'approved' ? `Événement ${event.title} approuvé !` : `Événement ${event.title} rejeté.`);
+      refetchEvents();
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de l'action");
     }
   };
 

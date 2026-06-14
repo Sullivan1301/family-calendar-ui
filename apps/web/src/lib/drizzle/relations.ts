@@ -1,6 +1,9 @@
 import { relations } from 'drizzle-orm';
 import {
   users,
+  sessions,
+  accounts,
+  verifications,
   userRoles,
   families,
   familyMembers,
@@ -15,6 +18,8 @@ import {
 // User relations
 export const usersRelations = relations(users, ({ many }) => ({
   roles: many(userRoles),
+  sessions: many(sessions),
+  accounts: many(accounts),
   familyMembers: many(familyMembers),
   createdFamilies: many(families, { relationName: 'createdBy' }),
   createdEvents: many(events, { relationName: 'eventCreatedBy' }),
@@ -23,6 +28,22 @@ export const usersRelations = relations(users, ({ many }) => ({
   eventComments: many(eventComments),
   notifications: many(notifications),
   sentInvitations: many(invitations, { relationName: 'invitedBy' }),
+}));
+
+// Sessions relations
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+// Accounts relations
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
 }));
 
 // UserRoles relations

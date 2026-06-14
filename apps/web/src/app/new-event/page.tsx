@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 export default function NewEventPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, activeFamily } = useAuth();
   const [activeLoc, setActiveLoc] = useState("Antananarivo");
   const [eventType, setEventType] = useState<EventType>("autre");
   const [toggles, setToggles] = useState({
@@ -19,7 +19,7 @@ export default function NewEventPage() {
     comments: true,
     filterLoc: false
   });
-  
+
   // États du formulaire
   const [formData, setFormData] = useState({
     title: '',
@@ -27,7 +27,6 @@ export default function NewEventPage() {
     startDate: '',
     endDate: '',
     location: '',
-    familyId: '', // Sera sélectionné plus tard
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,8 +40,8 @@ export default function NewEventPage() {
       toast.error("La date de début est obligatoire");
       return;
     }
-    if (!formData.familyId) {
-      toast.error("Veuillez sélectionner une famille");
+    if (!activeFamily) {
+      toast.error("Aucune famille sélectionnée");
       return;
     }
 
@@ -53,7 +52,7 @@ export default function NewEventPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          familyId: formData.familyId,
+          familyId: activeFamily.id,
           title: formData.title,
           type: eventType,
           description: formData.description || undefined,
