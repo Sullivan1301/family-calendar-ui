@@ -41,12 +41,12 @@ export default function MembersPage() {
         {members.map((member) => (
           <MemberCard key={member.name} {...member} isAdminView={isAdmin} />
         ))}
-        <div onClick={handleInvite} className="border-2 border-dashed border-tba-border rounded-tba p-8 flex flex-col items-center justify-center text-tba-muted hover:border-tba-blue hover:text-tba-blue transition-all duration-300 cursor-pointer group hover:bg-white/50">
+        <button type="button" onClick={handleInvite} className="border-2 border-dashed border-tba-border rounded-tba p-8 flex flex-col items-center justify-center text-tba-muted hover:border-tba-blue hover:text-tba-blue transition-all duration-300 group hover:bg-white/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tba-blue">
           <div className="w-14 h-14 rounded-2xl bg-tba-surface flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-tba-blue/5 transition-all duration-300">
             <UserPlus size={22} />
           </div>
           <span className="font-medium text-sm">Ajouter un membre</span>
-        </div>
+        </button>
       </div>
     </div>
   );

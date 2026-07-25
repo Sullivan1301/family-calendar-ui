@@ -28,7 +28,7 @@ export default function EventDetailPage() {
     }
   };
 
-  const eventDate = new Date();
+  const eventDate = new Date(2026, 2, 29);
 
   return (
     <div className="animate-fade-in">
@@ -43,7 +43,7 @@ export default function EventDetailPage() {
             </span>
             <StatusBadge status="approved" className="bg-white/15 text-white border border-white/10 text-[0.65rem]" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-white font-serif">Réunion Famille Pâques 2026</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-white font-serif">Réunion familiale du 29 mars 2026</h1>
 
           <div className="flex flex-wrap gap-5 text-sm opacity-85 mb-8">
             <span className="flex items-center gap-2"><Calendar size={16} className="opacity-60" /> {eventDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>

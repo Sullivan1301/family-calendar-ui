@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Bell, Clock, CheckCheck, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
@@ -7,21 +8,21 @@ import { fr } from "date-fns/locale";
 
 export function NotificationsPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { isAdmin } = useAuth();
-  if (!isOpen) return null;
-
-  const notifications = [
+  const [notifications, setNotifications] = useState([
     { id: 1, icon: "👤", iconBg: "bg-tba-yellow/15", text: "<strong>Anja</strong> attend votre validation pour rejoindre la famille.", time: "Il y a 2 heures", read: false, adminOnly: true, accent: "border-l-tba-yellow" },
     { id: 2, icon: "💒", iconBg: "bg-tba-blue/8", text: "<strong>Mariage de Rina</strong> : Nouvel événement en attente de validation.", time: "Il y a 5 heures", read: false, adminOnly: true, accent: "border-l-tba-blue" },
     { id: 3, icon: "🎂", iconBg: "bg-red-50", text: "<strong>Anniversaire de Yasina</strong> dans 3 jours — " + format(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 'd MMMM', { locale: fr }), time: "Hier", read: false, accent: "border-l-tba-red" },
     { id: 4, icon: "✅", iconBg: "bg-emerald-50", text: "<strong>Tahina</strong> a confirmé sa présence aux Vacances Foulpointe", time: "Il y a 2 jours", read: true, accent: "border-l-emerald-500" },
-  ];
+  ]);
+
+  if (!isOpen) return null;
 
   const filteredNotifications = notifications.filter(n => !n.adminOnly || (n.adminOnly && isAdmin));
 
   return (
     <>
-      <div className="fixed inset-0 z-[140] bg-black/10 backdrop-blur-sm animate-fade-in lg:hidden" onClick={onClose} />
-      <div className="fixed top-14 right-4 z-[150] w-[380px] bg-white rounded-tba shadow-tba-lg border border-tba-border overflow-hidden animate-scale-in mt-2">
+      <button type="button" aria-label="Fermer les notifications" className="fixed inset-0 z-[140] bg-transparent lg:bg-black/10 lg:backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="fixed top-14 left-4 right-4 z-[150] mt-2 w-auto max-w-[380px] rounded-tba border border-tba-border bg-white shadow-tba-lg animate-scale-in lg:left-auto lg:right-4">
         <div className="px-5 py-3.5 border-b border-tba-border/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Bell size={16} className="text-tba-blue" />
@@ -30,7 +31,7 @@ export function NotificationsPanel({ isOpen, onClose }: { isOpen: boolean; onClo
               {filteredNotifications.filter(n => !n.read).length}
             </span>
           </div>
-          <button className="text-[0.65rem] font-medium text-tba-blue hover:text-tba-red transition-colors duration-200 flex items-center gap-1">
+          <button type="button" onClick={() => setNotifications((current) => current.map((notification) => ({ ...notification, read: true })))} className="text-[0.65rem] font-medium text-tba-blue hover:text-tba-red transition-colors duration-200 flex items-center gap-1">
             <CheckCheck size={13} /> Tout lire
           </button>
         </div>

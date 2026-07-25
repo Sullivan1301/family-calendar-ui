@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import { Save, Search, UserPlus, Users, MapPin, Calendar, Clock, Lock, ShieldCheck, Bell, MessageSquare, Type, Info, CheckCircle2, AlertCircle } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EventType } from "@/types";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 export default function NewEventPage() {
   const [activeLoc, setActiveLoc] = useState("Antananarivo");
@@ -29,6 +30,7 @@ export default function NewEventPage() {
   };
 
   const locations = ["Antananarivo", "Toamasina", "Antsirabe", "Mahajanga", "Fianarantsoa", "Toliara", "Antsiranana", "Foulpointe"];
+  const today = format(new Date(), "yyyy-MM-dd");
 
   const isSensitive = useMemo(() => {
     return ['mariage', 'baptême', 'anniversaire de décès', 'événement global'].includes(eventType);
@@ -116,7 +118,7 @@ export default function NewEventPage() {
                   <label className="section-label">Date de début *</label>
                   <div className="input-with-icon">
                     <Calendar size={15} className="text-tba-muted shrink-0" />
-                    <input type="date" className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-tba-blue" defaultValue={new Date().toISOString().split('T')[0]} />
+                    <input type="date" className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-tba-blue" defaultValue={today} />
                   </div>
                 </div>
 
@@ -237,7 +239,7 @@ function GuestRow({ initials, name, role, color, isOrg }: any) {
   );
 }
 
-function ToggleRow({ icon, title, sub, on, toggle }: any) {
+function ToggleRow({ icon, title, sub, on, toggle }: { icon: ReactNode; title: string; sub: string; on: boolean; toggle: () => void }) {
   return (
     <div className="flex items-center justify-between group">
       <div className="flex items-center gap-3">
@@ -247,12 +249,15 @@ function ToggleRow({ icon, title, sub, on, toggle }: any) {
           <div className="text-[0.7rem] text-tba-muted font-medium">{sub}</div>
         </div>
       </div>
-      <div
+      <button
+        type="button"
         onClick={toggle}
-        className={`relative w-10 h-[22px] rounded-full cursor-pointer transition-colors duration-200 shrink-0 ${on ? 'bg-tba-blue' : 'bg-tba-border'}`}
+        aria-label={`${title} : ${on ? 'activé' : 'désactivé'}`}
+        aria-pressed={on}
+        className={`relative h-[22px] w-10 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tba-blue ${on ? 'bg-tba-blue' : 'bg-tba-border'}`}
       >
         <div className={`absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm ${on ? 'translate-x-[18px]' : ''}`} />
-      </div>
+      </button>
     </div>
   );
 }

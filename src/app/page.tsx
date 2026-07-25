@@ -6,9 +6,8 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Info, Download } f
 import { useAuth } from "@/context/AuthContext";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { getMadagascarHolidays, Holiday } from "@/lib/holidays";
-import { Calendar } from "@/components/ui/calendar";
 import { fr } from "date-fns/locale";
-import { format, isSameDay, startOfWeek, addDays, eachDayOfInterval, addMonths, subMonths } from "date-fns";
+import { format, isSameDay, startOfWeek, startOfMonth, endOfMonth, endOfWeek, addDays, eachDayOfInterval, addMonths, subMonths } from "date-fns";
 
 export default function Dashboard() {
   const [currentView, setCurrentView] = useState("Mois");
@@ -18,8 +17,8 @@ export default function Dashboard() {
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
-    getMadagascarHolidays(2026).then(setHolidays);
-  }, []);
+    getMadagascarHolidays(month.getFullYear()).then(setHolidays);
+  }, [month]);
 
   const familyEvents = useMemo(() => [
     { id: '1', date: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 7), title: '🎂 Anniversaire de Yasina', type: 'birthday' },
@@ -31,9 +30,20 @@ export default function Dashboard() {
     return familyEvents.filter(event => isSameDay(event.date, date));
   };
 
+  const selectDate = (date: Date) => {
+    setSelectedDate(date);
+    setMonth(date);
+  };
+
   const daysOfWeek = useMemo(() => {
-    const start = startOfWeek(month, { weekStartsOn: 1 });
+    const start = startOfWeek(selectedDate ?? month, { weekStartsOn: 1 });
     return eachDayOfInterval({ start, end: addDays(start, 6) });
+  }, [month, selectedDate]);
+
+  const calendarDays = useMemo(() => {
+    const start = startOfWeek(startOfMonth(month), { weekStartsOn: 1 });
+    const end = endOfWeek(endOfMonth(month), { weekStartsOn: 1 });
+    return eachDayOfInterval({ start, end });
   }, [month]);
 
   const monthStr = format(month, 'yyyy-MM');
@@ -43,9 +53,9 @@ export default function Dashboard() {
   const selectedDayInfo = useMemo(() => {
     if (!selectedDate) return null;
     const dStr = format(selectedDate, 'yyyy-MM-dd');
-    const holiday = holidays.find(h => h.date === dStr);
-    const event = familyEvents.find(e => isSameDay(e.date, selectedDate));
-    return { holiday, event };
+    const dayHolidays = holidays.filter(h => h.date === dStr);
+    const dayEvents = familyEvents.filter(e => isSameDay(e.date, selectedDate));
+    return { holidays: dayHolidays, events: dayEvents };
   }, [selectedDate, holidays, familyEvents]);
 
   return (
@@ -60,25 +70,26 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-white border border-tba-border rounded-xl p-1 gap-0.5 shadow-sm">
+          <div className="flex bg-[#fffdf9] border border-[#eadfd3] rounded-xl p-1 gap-0.5 shadow-sm">
             {["Mois", "Semaine", "Jour"].map((v) => (
               <button
                 key={v}
                 onClick={() => {
+                  const today = new Date();
                   setCurrentView(v);
-                  setSelectedDate(new Date());
+                  selectDate(today);
                 }}
                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                   currentView === v
-                    ? "bg-tba-blue text-white shadow-md shadow-tba-blue/15"
-                    : "text-tba-gray hover:bg-tba-surface"
+                    ? "bg-[#a7472d] text-white shadow-md shadow-[#a7472d]/20"
+                    : "text-tba-gray hover:bg-[#f7eee5] hover:text-[#7c301d]"
                 }`}
               >
                 {v}
               </button>
             ))}
           </div>
-          <Link href="/new-event" className="btn-primary flex items-center gap-2 py-2.5 px-5 text-sm">
+          <Link href="/new-event" className="flex items-center gap-2 rounded-lg bg-[#a7472d] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#a7472d]/20 transition-all duration-200 hover:-translate-y-px hover:bg-[#873820]">
             <span className="text-lg leading-none">+</span>
             <span className="hidden sm:inline">Nouvel</span> Événement
           </Link>
@@ -86,44 +97,91 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard icon="🎉" gradient="from-tba-blue/10 to-tba-blue/5" value="12" label="Événements cette année" />
-        <StatCard icon="👨‍👩‍👧‍👦" gradient="from-tba-cyan/10 to-tba-cyan/5" value="7" label="Membres actifs" />
+        <StatCard icon="🎉" gradient="from-[#f5dfd3] to-[#fbf5ee]" value="12" label="Événements cette année" />
+        <StatCard icon="👨‍👩‍👧‍👦" gradient="from-[#dce8df] to-[#f2f7f1]" value="7" label="Membres actifs" />
         {isAdmin ? (
-          <StatCard icon="🛡️" gradient="from-tba-yellow/15 to-tba-yellow/5" value="2" label="Validations en attente" />
+          <StatCard icon="🛡️" gradient="from-[#f6e5b9] to-[#fff8e8]" value="2" label="Validations en attente" />
         ) : (
-          <StatCard icon="⏳" gradient="from-tba-red/10 to-tba-red/5" value="4" label="RSVP en attente" />
+          <StatCard icon="⏳" gradient="from-[#f7ddd8] to-[#fff5f2]" value="4" label="RSVP en attente" />
         )}
-        <StatCard icon="✅" gradient="from-emerald-100 to-emerald-50" value="71%" label="Disponibilité moy." />
+        <StatCard icon="✅" gradient="from-[#dce8df] to-[#f2f7f1]" value="71%" label="Disponibilité moy." />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 glass-card p-6 overflow-hidden">
-          <div className="flex justify-center w-full">
+        <div className="xl:col-span-2 overflow-hidden rounded-[20px] border border-[#eadfd3] bg-[#fffdf9] shadow-[0_16px_50px_rgba(73,46,30,0.08)]">
+          <div className="border-b border-[#eadfd3] bg-[#f7eee5] px-5 py-4 sm:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#9b6049]">Calendrier familial</p>
+                <h2 className="mt-1 text-xl font-bold capitalize text-[#54291f] sm:text-2xl">{format(month, 'MMMM yyyy', { locale: fr })}</h2>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => setMonth(subMonths(month, 1))} aria-label="Mois précédent" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfcdbf] bg-[#fffdf9] text-[#7c301d] transition-colors hover:bg-[#a7472d] hover:text-white">
+                  <ChevronLeft size={18} />
+                </button>
+                <button onClick={() => selectDate(new Date())} className="hidden rounded-full px-3 py-2 text-xs font-semibold text-[#7c301d] transition-colors hover:bg-[#ecd8c8] sm:block">Aujourd&rsquo;hui</button>
+                <button onClick={() => setMonth(addMonths(month, 1))} aria-label="Mois suivant" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfcdbf] bg-[#fffdf9] text-[#7c301d] transition-colors hover:bg-[#a7472d] hover:text-white">
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="p-3 sm:p-5">
             {currentView === 'Mois' ? (
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                month={month}
-                onMonthChange={setMonth}
-                locale={fr}
-                className="rounded-lg border-0 shadow-none w-fit mx-auto"
-                components={{}}
-              />
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[680px]">
+                  <div className="grid grid-cols-7 border-b border-[#eadfd3]">
+                    {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day) => (
+                      <div key={day} className="px-2 py-2.5 text-center text-[0.65rem] font-bold uppercase tracking-[0.1em] text-[#9b6049]">{day}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 border-l border-t border-[#eadfd3]">
+                    {calendarDays.map((date) => {
+                      const dateKey = format(date, 'yyyy-MM-dd');
+                      const isCurrentMonth = date.getMonth() === month.getMonth();
+                      const isToday = isSameDay(date, new Date());
+                      const isSelected = Boolean(selectedDate && isSameDay(date, selectedDate));
+                      const dayHolidays = holidays.filter((item) => item.date === dateKey);
+                      const events = getEventsForDate(date);
+
+                      return (
+                        <button
+                          key={dateKey}
+                          type="button"
+                          onClick={() => selectDate(date)}
+                          aria-label={format(date, 'EEEE d MMMM yyyy', { locale: fr })}
+                          className={`group min-h-[104px] border-b border-r border-[#eadfd3] p-2 text-left transition-colors duration-200 focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#a7472d] sm:min-h-[118px] sm:p-2.5 ${
+                            isSelected ? 'bg-[#f4e0d4]' : isToday ? 'bg-[#fff5ea]' : isCurrentMonth ? 'bg-[#fffdf9] hover:bg-[#faf1e9]' : 'bg-[#f5eee6] hover:bg-[#efe3d8]'
+                          }`}
+                        >
+                          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold ${isToday ? 'bg-[#a7472d] text-white' : isSelected ? 'bg-[#d78b68] text-[#54291f]' : isCurrentMonth ? 'text-[#54291f]' : 'text-[#a99485]'}`}>{date.getDate()}</span>
+                          <div className="mt-2 space-y-1">
+                            {dayHolidays[0] && <span className="block truncate rounded-md bg-[#f5df9e] px-1.5 py-1 text-[0.6rem] font-semibold text-[#6f4d00]" title={dayHolidays.map((holiday) => holiday.localName).join(', ')}>Férié · {dayHolidays[0].localName}</span>}
+                            {events.slice(0, 2).map((event) => (
+                              <span key={event.id} className={`block truncate rounded-md px-1.5 py-1 text-[0.6rem] font-semibold ${event.type === 'birthday' ? 'bg-[#f4d8d0] text-[#873820]' : 'bg-[#dce8df] text-[#315d48]'}`} title={event.title}>{event.title}</span>
+                            ))}
+                            {events.length > 2 && <span className="block px-1.5 text-[0.6rem] font-semibold text-[#9b6049]">+{events.length - 2} autres</span>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             ) : currentView === 'Semaine' ? (
-              <div className="bg-white rounded-xl border border-tba-border shadow-sm p-5 w-full max-w-4xl">
+              <div className="w-full rounded-xl border border-[#eadfd3] bg-[#fffdf9] p-5 shadow-sm">
                 <div className="flex justify-between items-center mb-5">
                   <button
-                    onClick={() => setMonth(subMonths(month, 1))}
+                    onClick={() => selectDate(addDays(selectedDate ?? month, -7))}
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-tba-gray hover:bg-tba-surface hover:text-tba-blue transition-all duration-200"
                   >
                     <ChevronLeft size={18} />
                   </button>
                   <h2 className="font-semibold text-sm text-tba-blue">
-                    Semaine du {format(startOfWeek(month, { weekStartsOn: 1 }), 'd MMM yyyy')} — {format(addDays(startOfWeek(month, { weekStartsOn: 1 }), 6), 'd MMM yyyy')}
+                    Semaine du {format(daysOfWeek[0], 'd MMM yyyy')} — {format(daysOfWeek[6], 'd MMM yyyy')}
                   </h2>
                   <button
-                    onClick={() => setMonth(addMonths(month, 1))}
+                    onClick={() => selectDate(addDays(selectedDate ?? month, 7))}
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-tba-gray hover:bg-tba-surface hover:text-tba-blue transition-all duration-200"
                   >
                     <ChevronRight size={18} />
@@ -152,7 +210,7 @@ export default function Dashboard() {
                               ? 'bg-tba-blue/5 border-tba-blue/20'
                               : 'border-transparent hover:bg-tba-surface hover:border-tba-border/50'
                         }`}
-                        onClick={() => setSelectedDate(date)}
+                        onClick={() => selectDate(date)}
                       >
                         <div className={`text-right pr-1.5 text-sm font-medium ${
                           isToday ? 'font-bold text-tba-blue' : isSelected ? 'text-tba-blue' : 'text-tba-gray'
@@ -177,7 +235,7 @@ export default function Dashboard() {
               <div className="bg-white rounded-xl border border-tba-border shadow-sm p-6 w-full max-w-2xl">
                 <div className="flex justify-between items-center mb-6">
                   <button
-                    onClick={() => setSelectedDate(addDays(selectedDate || new Date(), -1))}
+                    onClick={() => selectDate(addDays(selectedDate || new Date(), -1))}
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-tba-gray hover:bg-tba-surface hover:text-tba-blue transition-all duration-200"
                   >
                     <ChevronLeft size={18} />
@@ -186,7 +244,7 @@ export default function Dashboard() {
                     {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: fr }) : format(new Date(), 'd MMMM yyyy', { locale: fr })}
                   </h2>
                   <button
-                    onClick={() => setSelectedDate(addDays(selectedDate || new Date(), 1))}
+                    onClick={() => selectDate(addDays(selectedDate || new Date(), 1))}
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-tba-gray hover:bg-tba-surface hover:text-tba-blue transition-all duration-200"
                   >
                     <ChevronRight size={18} />
@@ -240,11 +298,11 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="mt-8 pt-5 border-t border-tba-border/50 flex flex-wrap gap-5 justify-center">
-            <LegendItem color="bg-tba-cyan" label="Événement" />
-            <LegendItem color="bg-tba-red" label="Anniversaire" />
-            <LegendItem color="bg-tba-yellow" label="Férié MG" />
-            <LegendItem color="bg-tba-blue" label="Aujourd'hui" ring />
+          <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-[#eadfd3] px-5 py-4 sm:px-6">
+            <LegendItem color="bg-[#dce8df]" label="Événement" />
+            <LegendItem color="bg-[#f4d8d0]" label="Anniversaire" />
+            <LegendItem color="bg-[#f5df9e]" label="Jour férié" />
+            <LegendItem color="bg-[#a7472d]" label="Aujourd&rsquo;hui" ring />
           </div>
         </div>
 
@@ -264,23 +322,23 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {selectedDayInfo?.holiday || selectedDayInfo?.event ? (
+              {selectedDayInfo && (selectedDayInfo.holidays.length > 0 || selectedDayInfo.events.length > 0) ? (
                 <div className="space-y-3">
-                  {selectedDayInfo.holiday && (
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5 border border-white/10 animate-fade-in">
+                  {selectedDayInfo.holidays.map((holiday) => (
+                    <div key={holiday.date + holiday.localName} className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5 border border-white/10 animate-fade-in">
                       <div className="text-[0.6rem] font-bold uppercase tracking-wide text-tba-yellow mb-1">🇲🇬 Jour Férié</div>
-                      <div className="text-sm font-semibold leading-snug">{selectedDayInfo.holiday.localName}</div>
+                      <div className="text-sm font-semibold leading-snug">{holiday.localName}</div>
                     </div>
-                  )}
-                  {selectedDayInfo.event && (
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5 border border-white/10 animate-fade-in">
+                  ))}
+                  {selectedDayInfo.events.map((event) => (
+                    <div key={event.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5 border border-white/10 animate-fade-in">
                       <div className="text-[0.6rem] font-bold uppercase tracking-wide text-tba-cyan mb-1">📅 Événement</div>
-                      <div className="text-sm font-semibold leading-snug">{selectedDayInfo.event.title}</div>
+                      <div className="text-sm font-semibold leading-snug">{event.title}</div>
                       <Link href="/events" className="inline-flex items-center gap-1 text-[0.6rem] font-semibold mt-2 text-white/50 hover:text-white transition-colors duration-200">
                         VOIR LES DÉTAILS <Info size={10} />
                       </Link>
                     </div>
-                  )}
+                  ))}
                 </div>
               ) : (
                 <div className="py-6 text-center opacity-40 italic text-sm">
