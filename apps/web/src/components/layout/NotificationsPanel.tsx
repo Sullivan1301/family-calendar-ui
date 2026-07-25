@@ -56,8 +56,8 @@ export function NotificationsPanel({ isOpen, onClose }: { isOpen: boolean; onClo
 
   return (
     <>
-      <div className="fixed inset-0 z-[140] bg-black/5 backdrop-blur-sm animate-fade-in lg:hidden" onClick={onClose} />
-      <div className="fixed top-16 right-6 z-[150] w-96 bg-white rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300 mt-2">
+      <button type="button" aria-label="Fermer les notifications" className="fixed inset-0 z-[140] bg-transparent lg:bg-black/5 lg:backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="fixed top-16 left-4 right-4 z-[150] mt-2 w-auto max-w-96 rounded-2xl border border-border bg-white shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 lg:left-auto lg:right-6">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-muted/50">
           <div className="flex items-center gap-2">
             <Bell size={18} className="text-tba-blue" />
