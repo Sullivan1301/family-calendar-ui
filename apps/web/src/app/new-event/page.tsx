@@ -110,8 +110,8 @@ export default function NewEventPage() {
     <div className="animate-fade-in pb-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-tba-blue tracking-tight font-serif">Créer un événement</h1>
-          <p className="text-sm text-tba-gray mt-1.5 font-medium">Renseignez les informations de votre événement familial</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-tba-blue tracking-tight">Créer un événement</h1>
+          <p className="text-base text-tba-gray mt-2 font-sans font-normal">Renseignez les informations de votre événement familial</p>
         </div>
         <button 
           onClick={handleSave} 
@@ -123,20 +123,25 @@ export default function NewEventPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-8">
+          {/* Main info */}
           <div className="standard-card">
-            <div className="px-5 py-3.5 border-b border-tba-border/50 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-tba-border flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Type size={16} className="text-tba-blue" />
-                <h3 className="text-base font-semibold text-tba-blue">Informations générales</h3>
+                <Type size={18} className="text-tba-blue" />
+                <h3 className="text-lg font-bold text-tba-blue">Informations générales</h3>
               </div>
-              {isSensitive ? <StatusBadge status="pending" className="text-[0.6rem]" /> : <StatusBadge status="approved" className="text-[0.6rem]" />}
+              {isSensitive ? (
+                <StatusBadge status="pending" />
+              ) : (
+                <StatusBadge status="approved" />
+              )}
             </div>
-            <div className="p-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="sm:col-span-2 space-y-1.5">
-                  <label className="section-label">Nom de l'événement *</label>
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="sm:col-span-2 space-y-2">
+                  <label className="text-xs font-bold text-tba-gray uppercase tracking-widest">Nom de l'événement *</label>
                   <div className="input-with-icon">
                     <Info size={16} className="text-tba-gray-light mr-2" />
                     <input 
@@ -148,15 +153,15 @@ export default function NewEventPage() {
                     />
                   </div>
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="section-label">Type d'événement *</label>
+                
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-tba-gray uppercase tracking-widest">Type d'événement *</label>
                   <div className="input-with-icon">
-                    <CheckCircle2 size={15} className="text-tba-muted shrink-0" />
-                    <select
+                    <CheckCircle2 size={16} className="text-tba-gray-light mr-2" />
+                    <select 
                       value={eventType}
                       onChange={(e) => setEventType(e.target.value as EventType)}
-                      className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-tba-blue cursor-pointer"
+                      className="flex-1 bg-transparent border-none outline-none text-sm font-semibold text-tba-blue cursor-pointer"
                     >
                       {eventTypes.map(t => (
                         <option key={t.value + t.label} value={t.value}>{t.label}</option>
@@ -164,17 +169,17 @@ export default function NewEventPage() {
                     </select>
                   </div>
                   {isSensitive && (
-                    <p className="text-[0.65rem] text-tba-yellow font-medium flex items-center gap-1 mt-1">
+                    <p className="text-[0.65rem] text-tba-yellow font-bold flex items-center gap-1 mt-1">
                       <AlertCircle size={10} /> Nécessite l'approbation d'un Admin
                     </p>
                   )}
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="section-label">Visibilité</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-tba-gray uppercase tracking-widest">Visibilité</label>
                   <div className="input-with-icon">
-                    <Lock size={15} className="text-tba-muted shrink-0" />
-                    <select className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-tba-blue cursor-pointer">
+                    <Lock size={16} className="text-tba-gray-light mr-2" />
+                    <select className="flex-1 bg-transparent border-none outline-none text-sm font-semibold text-tba-blue cursor-pointer">
                       <option>🌍 Toute la famille</option>
                       <option>📍 Par localisation</option>
                       <option>👥 Invités seulement</option>
@@ -183,8 +188,8 @@ export default function NewEventPage() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="section-label">Date de début *</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-tba-gray uppercase tracking-widest">Date de début *</label>
                   <div className="input-with-icon">
                     <Calendar size={16} className="text-tba-gray-light mr-2" />
                     <input 
@@ -192,13 +197,13 @@ export default function NewEventPage() {
                       className="flex-1 bg-transparent border-none outline-none text-sm font-semibold text-tba-blue" 
                       value={formData.startDate}
                       onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                      defaultValue={new Date().toISOString().split('T')[0]} 
+                      defaultValue={new Date().toLocaleDateString('en-CA')}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="section-label">Date de fin</label>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-tba-gray uppercase tracking-widest">Date de fin</label>
                   <div className="input-with-icon">
                     <Clock size={16} className="text-tba-gray-light mr-2" />
                     <input 
@@ -223,78 +228,107 @@ export default function NewEventPage() {
             </div>
           </div>
 
+          {/* Location */}
           <div className="standard-card">
-            <div className="px-5 py-3.5 border-b border-tba-border/50 flex items-center gap-2">
-              <MapPin size={16} className="text-tba-blue" />
-              <h3 className="text-base font-semibold text-tba-blue">Localisation</h3>
+            <div className="px-6 py-4 border-b border-tba-border flex items-center gap-2">
+              <MapPin size={18} className="text-tba-blue" />
+              <h3 className="text-lg font-bold text-tba-blue">Localisation</h3>
             </div>
-            <div className="p-5">
-              <div className="input-with-icon mb-5">
-                <Search className="text-tba-muted shrink-0" size={15} />
-                <input type="text" className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-tba-blue placeholder:text-tba-muted" placeholder="Rechercher une ville ou adresse…" />
+            <div className="p-6">
+              <div className="relative mb-6">
+                <div className="input-with-icon">
+                  <Search className="text-tba-gray-light mr-2" size={16} />
+                  <input type="text" className="flex-1 bg-transparent border-none outline-none text-sm font-semibold text-tba-blue placeholder:text-tba-gray-light" placeholder="Rechercher une ville ou adresse…" />
+                </div>
               </div>
-              <div className="section-label mb-2.5">Suggestions</div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="text-[0.7rem] font-bold text-tba-gray-light mb-3 uppercase tracking-widest">Suggestions</div>
+              <div className="flex flex-wrap gap-2">
                 {locations.map((loc) => (
-                  <button
+                  <span
                     key={loc}
                     onClick={() => setActiveLoc(loc)}
-                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer border transition-all duration-200 ${
+                    className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold cursor-pointer border-2 transition-all ${
                       activeLoc === loc
-                        ? "bg-tba-blue text-white border-tba-blue shadow-md shadow-tba-blue/15"
-                        : "bg-white text-tba-gray border-tba-border hover:border-tba-blue/40 hover:text-tba-blue"
+                        ? "bg-tba-blue text-white border-tba-blue shadow-lg shadow-tba-blue/20"
+                        : "bg-white text-tba-gray border-tba-border hover:border-tba-blue hover:text-tba-blue"
                     }`}
                   >
-                    <MapPin size={12} /> {loc}
-                  </button>
+                    📍 {loc}
+                  </span>
                 ))}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-8">
+          {/* Guest Management */}
           <div className="standard-card">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-tba-border/50">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-tba-border">
               <div className="flex items-center gap-2">
-                <UserPlus size={16} className="text-tba-blue" />
-                <h3 className="text-base font-semibold text-tba-blue">Gestion des invités</h3>
+                <UserPlus size={18} className="text-tba-blue" />
+                <h3 className="text-lg font-bold text-tba-blue">Gestion des invités</h3>
               </div>
-              <button onClick={handleAddGuest} className="btn-ghost text-xs py-1.5 px-3">+ Ajouter</button>
+              <button onClick={handleAddGuest} className="btn-secondary py-2 px-4 text-xs font-bold">+ Ajouter</button>
             </div>
-            <div className="p-5 space-y-0">
-              <GuestRow initials="SL" name="Sullivan" role="Organisateur" color="from-tba-blue to-tba-cyan" isOrg />
-              <GuestRow initials="AN" name="Anja" role="📍 Antananarivo" color="from-emerald-700 to-emerald-500" />
-              <GuestRow initials="YS" name="Yasina" role="📍 Toamasina" color="from-amber-600 to-amber-400" />
-
-              <div className="pt-4 mt-2 border-t border-tba-border/50 text-center">
-                <button
+              <div className="p-6 space-y-4">
+                <GuestRow initials="SL" name="Sullivan" role="Organisateur" color="from-tba-blue to-tba-cyan" isOrg />
+                <GuestRow initials="AN" name="Anja" role="📍 Antananarivo" color="from-emerald-700 to-emerald-500" />
+                <GuestRow initials="YS" name="Yasina" role="📍 Toamasina" color="from-amber-600 to-amber-400" />
+                
+                <div className="pt-4 border-t border-tba-border text-center">
+                <button 
                   onClick={() => toast.success("Toute la famille a été invitée !")}
-                  className="text-tba-blue text-xs font-medium hover:underline transition-all duration-200 flex items-center justify-center gap-1.5 mx-auto"
+                  className="text-tba-blue text-xs font-bold hover:underline transition-all flex items-center justify-center gap-2 mx-auto"
                 >
-                  <Users size={13} /> Inviter toute la famille
+                  <Users size={14} /> Inviter toute la famille
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Privacy Settings */}
           <div className="standard-card">
-            <div className="px-5 py-3.5 border-b border-tba-border/50 flex items-center gap-2">
-              <ShieldCheck size={16} className="text-tba-blue" />
-              <h3 className="text-base font-semibold text-tba-blue">Paramètres & Sécurité</h3>
+            <div className="px-6 py-4 border-b border-tba-border flex items-center gap-2">
+              <ShieldCheck size={18} className="text-tba-blue" />
+              <h3 className="text-lg font-bold text-tba-blue">Paramètres & Sécurité</h3>
             </div>
-            <div className="p-5 space-y-5">
-              <ToggleRow icon={<Lock size={16} className="text-tba-blue" />} title="Visible par tous" sub="Tous les membres de la famille peuvent voir l'événement" on={toggles.visible} toggle={() => toggle('visible')} />
-              <ToggleRow icon={<MapPin size={16} className="text-tba-cyan" />} title="Filtrer par ville" sub="Seuls les membres de la ville choisie verront l'événement" on={toggles.filterLoc} toggle={() => toggle('filterLoc')} />
-              <ToggleRow icon={<Bell size={16} className="text-tba-red" />} title="Notifications" sub="Envoyer un rappel automatique à J-3" on={toggles.notif} toggle={() => toggle('notif')} />
-              <ToggleRow icon={<MessageSquare size={16} className="text-emerald-600" />} title="Commentaires" sub="Autoriser les échanges sur cet événement" on={toggles.comments} toggle={() => toggle('comments')} />
+            <div className="p-6 space-y-6">
+              <ToggleRow 
+                icon={<Lock size={18} className="text-tba-blue" />}
+                title="Visible par tous" 
+                sub="Tous les membres de la famille peuvent voir l'événement" 
+                on={toggles.visible} 
+                toggle={() => toggle('visible')} 
+              />
+              <ToggleRow 
+                icon={<MapPin size={18} className="text-tba-cyan" />}
+                title="Filtrer par ville" 
+                sub="Seuls les membres de la ville choisie verront l'événement" 
+                on={toggles.filterLoc} 
+                toggle={() => toggle('filterLoc')} 
+              />
+              <ToggleRow 
+                icon={<Bell size={18} className="text-tba-red" />}
+                title="Notifications" 
+                sub="Envoyer un rappel automatique à J-3" 
+                on={toggles.notif} 
+                toggle={() => toggle('notif')} 
+              />
+              <ToggleRow 
+                icon={<MessageSquare size={18} className="text-emerald-600" />}
+                title="Commentaires" 
+                sub="Autoriser les échanges sur cet événement" 
+                on={toggles.comments} 
+                toggle={() => toggle('comments')} 
+              />
             </div>
           </div>
-
-          <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-4 flex gap-3">
-            <AlertCircle className="text-amber-500 shrink-0" size={18} />
+          
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
+            <AlertCircle className="text-amber-600 shrink-0" size={20} />
             <div className="text-xs text-amber-800">
-              <span className="font-semibold">Note :</span> Les champs marqués d'une étoile (*) sont obligatoires. {isSensitive ? "Cet événement étant de type sensible, il devra être validé par un administrateur avant d'être visible par tous." : "Votre événement sera visible dès l'enregistrement selon vos paramètres de confidentialité."}
+              <span className="font-bold">Note :</span> Les champs marqués d'une étoile (*) sont obligatoires. {isSensitive ? "Cet événement étant de type sensible, il devra être validé par un administrateur avant d'être visible par tous." : "Votre événement sera visible dès l'enregistrement selon vos paramètres de confidentialité."}
             </div>
           </div>
         </div>
@@ -305,20 +339,20 @@ export default function NewEventPage() {
 
 function GuestRow({ initials, name, role, color, isOrg }: any) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-tba-border/50 last:border-b-0">
-      <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold text-xs ring-2 ring-white shadow-sm`}>
+    <div className="flex items-center justify-between py-3 border-b border-tba-border last:border-b-0">
+      <div className="flex items-center gap-4">
+        <div className={`w-10 h-10 rounded-full bg-linear-to-br ${color} flex items-center justify-center text-white font-bold text-xs`}>
           {initials}
         </div>
         <div>
-          <div className="text-sm font-semibold text-tba-blue">{name}</div>
-          <div className="text-xs text-tba-muted">{role}</div>
+          <div className="text-sm font-bold text-tba-blue">{name}</div>
+          <div className="text-xs text-tba-gray">{role}</div>
         </div>
       </div>
       {isOrg ? (
-        <span className="text-[0.65rem] font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600">Organisateur</span>
+        <span className="text-[0.65rem] font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">Organisateur</span>
       ) : (
-        <button onClick={() => toast.info(`${name} retiré`)} className="text-tba-red text-xs font-medium hover:opacity-70 transition-all duration-200">Retirer</button>
+        <button onClick={() => toast.info(`${name} retiré`)} className="text-tba-red text-xs font-bold hover:text-tba-red-light transition-all">Retirer</button>
       )}
     </div>
   );
@@ -327,19 +361,22 @@ function GuestRow({ initials, name, role, color, isOrg }: any) {
 function ToggleRow({ icon, title, sub, on, toggle }: any) {
   return (
     <div className="flex items-center justify-between group">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-tba-surface border border-tba-border/50 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all duration-200">{icon}</div>
+      <div className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-tba-bg-light flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all">{icon}</div>
         <div>
-          <div className="text-sm font-semibold text-tba-blue">{title}</div>
-          <div className="text-[0.7rem] text-tba-muted font-medium">{sub}</div>
+          <div className="text-sm font-bold text-tba-blue">{title}</div>
+          <div className="text-[0.7rem] text-tba-gray font-medium">{sub}</div>
         </div>
       </div>
-      <div
+      <button
+        type="button"
         onClick={toggle}
-        className={`relative w-10 h-[22px] rounded-full cursor-pointer transition-colors duration-200 shrink-0 ${on ? 'bg-tba-blue' : 'bg-tba-border'}`}
+        aria-label={`${title} : ${on ? 'activé' : 'désactivé'}`}
+        aria-pressed={on}
+        className={`relative h-6 w-11 rounded-full transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tba-blue ${on ? 'bg-tba-blue' : 'bg-tba-border'}`}
       >
-        <div className={`absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm ${on ? 'translate-x-[18px]' : ''}`} />
-      </div>
+        <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm ${on ? 'translate-x-5' : ''}`} />
+      </button>
     </div>
   );
 }
