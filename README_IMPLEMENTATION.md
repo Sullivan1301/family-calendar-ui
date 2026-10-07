@@ -155,6 +155,36 @@ npm run dev    # http://localhost:3000
 
 ---
 
+## Déploiement (Vercel)
+
+Le projet Vercel `family-calendar-ui` déploie la branche `prod`.
+
+Le **Root Directory** du projet doit être `apps/web`. Le dépôt ne contient
+pas de `package.json` à la racine : avec le Root Directory sur la racine,
+Vercel échoue sur « No Next.js version detected » avant même de lancer le
+build. C’est ce qui faisait échouer tous les déploiements, y compris celui
+de production antérieur à ces corrections.
+
+Le `vercel.json` racine a été supprimé. Il forçait
+`cd apps/web && npm run build`, ce qui devient faux une fois le Root
+Directory corrigé, et Vercel lit de toute façon ce fichier depuis le Root
+Directory, où il ne se trouvait pas. Next.js est détecté automatiquement.
+
+Variables d’environnement définies côté Vercel (production) :
+`DATABASE_URL` (pooler, port 6543), `BETTER_AUTH_SECRET`,
+`BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+
+⚠️ `BETTER_AUTH_URL` est fixée à l’URL de production. Les déploiements de
+prévisualisation ont une URL différente à chaque fois, donc
+l’authentification n’y fonctionne pas : better-auth compare l’origine pour
+les cookies et la protection CSRF. Pour la rendre fonctionnelle, dériver
+`baseURL` de `process.env.VERCEL_URL` dans `src/lib/auth/config.ts`.
+
+⚠️ Les déploiements de prévisualisation partagent la **même base de
+données** que la production : il n’y a qu’un projet Supabase. Un test sur
+une préversion écrit donc dans les données réelles de la famille.
+
 ## Limites connues
 
 À savoir avant de mettre l'app entre les mains de la famille :
