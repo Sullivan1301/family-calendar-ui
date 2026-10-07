@@ -21,6 +21,13 @@ export function middleware(request: NextRequest) {
     request.cookies.get('__Secure-better-auth.session_token')?.value;
 
   if (!sessionToken) {
+    // Une route API doit répondre en JSON. La rediriger vers /login renverrait
+    // du HTML avec un statut 2xx, que le client prendrait pour un succès avant
+    // d'échouer au parsing.
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
@@ -30,5 +37,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };

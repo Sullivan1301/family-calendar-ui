@@ -72,6 +72,14 @@ describe('middleware', () => {
     expect(res.status).toBe(200);
   });
 
+  it('returns 401 JSON for API routes without a session', async () => {
+    const req = createRequest('/api/events');
+    const res = middleware(req);
+    expect(res.status).toBe(401);
+    expect(res.headers.get('location')).toBeNull();
+    await expect(res.json()).resolves.toEqual({ error: 'Unauthorized' });
+  });
+
   it('redirects protected pages', () => {
     const protectedPaths = ['/', '/events', '/members', '/new-event', '/admin'];
     for (const path of protectedPaths) {

@@ -7,6 +7,18 @@ import { useAuth } from '@/context/AuthContext';
 import { Calendar, Mail, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
 
+/**
+ * Destination après connexion. On n'accepte qu'un chemin relatif interne :
+ * un callbackUrl absolu permettrait une redirection vers un site externe.
+ */
+function safeCallbackUrl() {
+  if (typeof window === 'undefined') return '/';
+  const raw = new URLSearchParams(window.location.search).get('callbackUrl');
+  if (!raw) return '/';
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/';
+  return raw;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, register, isLoading } = useAuth();
@@ -39,7 +51,9 @@ export default function LoginPage() {
         toast.error(result.error);
       } else {
         toast.success(isLogin ? 'Connexion réussie !' : 'Compte créé avec succès !');
-        router.push('/');
+        // Respecter la destination demandée (lien d'invitation, page protégée).
+        // Lu depuis window plutôt que useSearchParams pour garder la page statique.
+        router.push(safeCallbackUrl());
       }
     } catch (error: any) {
       toast.error(error.message || 'Une erreur est survenue');
