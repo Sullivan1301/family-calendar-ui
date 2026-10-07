@@ -12,6 +12,7 @@ import {
   eventGuests,
   eventHistory,
   eventComments,
+  eventResponses,
   notifications,
 } from './schema';
 
@@ -26,6 +27,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   approvedEvents: many(events, { relationName: 'eventApprovedBy' }),
   eventHistory: many(eventHistory),
   eventComments: many(eventComments),
+  eventResponses: many(eventResponses),
   notifications: many(notifications),
   sentInvitations: many(invitations, { relationName: 'invitedBy' }),
 }));
@@ -119,6 +121,7 @@ export const eventsRelations = relations(events, ({ one, many }) => ({
   guests: many(eventGuests),
   history: many(eventHistory),
   comments: many(eventComments),
+  responses: many(eventResponses),
 }));
 
 // EventGuests relations
@@ -157,6 +160,18 @@ export const eventCommentsRelations = relations(eventComments, ({ one }) => ({
 export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(users, {
     fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
+// Event responses relations
+export const eventResponsesRelations = relations(eventResponses, ({ one }) => ({
+  event: one(events, {
+    fields: [eventResponses.eventId],
+    references: [events.id],
+  }),
+  user: one(users, {
+    fields: [eventResponses.userId],
     references: [users.id],
   }),
 }));

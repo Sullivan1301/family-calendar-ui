@@ -8,12 +8,14 @@ import {
   boolean,
   pgEnum,
   primaryKey,
+  unique,
 } from 'drizzle-orm/pg-core';
 
 // Enums
 export const roleEnum = pgEnum('role', ['super-admin', 'admin', 'member']);
 export const statusEnum = pgEnum('status', ['pending', 'active', 'rejected']);
 export const eventStatusEnum = pgEnum('event_status', ['pending', 'approved', 'rejected']);
+export const rsvpEnum = pgEnum('rsvp', ['yes', 'maybe', 'no']);
 export const eventTypeEnum = pgEnum('event_type', [
   'mariage',
   'baptême',
@@ -185,6 +187,30 @@ export const eventGuests = pgTable('event_guests', {
   confirmed: boolean('confirmed').notNull().default(false),
 });
 
+// Event responses (RSVP des membres de la famille)
+export const eventResponses = pgTable(
+  'event_responses',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => events.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    response: rsvpEnum('response').notNull(),
+    comment: varchar('comment', { length: 500 }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => ({
+    eventUserUnique: unique('event_responses_event_user_unique').on(
+      table.eventId,
+      table.userId
+    ),
+  })
+);
+
 // Event history (audit)
 export const eventHistory = pgTable('event_history', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -250,6 +276,8 @@ export type EventGuest = typeof eventGuests.$inferSelect;
 export type NewEventGuest = typeof eventGuests.$inferInsert;
 export type EventHistory = typeof eventHistory.$inferSelect;
 export type NewEventHistory = typeof eventHistory.$inferInsert;
+export type EventResponse = typeof eventResponses.$inferSelect;
+export type NewEventResponse = typeof eventResponses.$inferInsert;
 export type EventComment = typeof eventComments.$inferSelect;
 export type NewEventComment = typeof eventComments.$inferInsert;
 export type Notification = typeof notifications.$inferSelect;
@@ -259,6 +287,7 @@ export type NewNotification = typeof notifications.$inferInsert;
 export type Role = 'super-admin' | 'admin' | 'member';
 export type Status = 'pending' | 'active' | 'rejected';
 export type EventStatus = 'pending' | 'approved' | 'rejected';
+export type Rsvp = 'yes' | 'maybe' | 'no';
 export type EventType = 'mariage' | 'baptême' | 'anniversaire de décès' | 'événement global' | 'autre';
 export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
 export type HistoryAction = 'created' | 'updated' | 'deleted' | 'approved' | 'rejected';
