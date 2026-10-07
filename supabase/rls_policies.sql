@@ -1,5 +1,22 @@
 -- Family Calendar - RLS Policies
--- Exécuter dans l'éditeur SQL de Supabase
+--
+-- ⛔ NE PAS APPLIQUER EN L'ÉTAT — CE FICHIER EST INCOMPATIBLE AVEC CETTE APP.
+--
+-- Ces policies reposent sur auth.uid(), c'est-à-dire Supabase Auth.
+-- L'application utilise better-auth, avec ses propres tables "users" et
+-- "session" : auth.uid() y vaut toujours NULL. Appliquer ce fichier
+-- bloquerait donc tous les accès, ou donnerait une fausse impression de
+-- sécurité.
+--
+-- Configuration réellement en place (migration enable_rls_deny_by_default) :
+--   RLS activé sur les 14 tables, sans aucune policy.
+--   -> anon / authenticated : aucun accès.
+--   -> le rôle postgres de DATABASE_URL (BYPASSRLS) garde l'accès complet.
+-- Les permissions sont vérifiées côté serveur dans
+-- apps/web/src/lib/permissions.ts, appelé par chaque route API.
+--
+-- Ce fichier n'est conservé que comme point de départ si l'app migrait
+-- un jour vers Supabase Auth.
 
 -- ============================================
 -- FAMILIES
