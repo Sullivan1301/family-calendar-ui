@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: session.data.user.email,
           name: session.data.user.name || session.data.user.email,
           emailVerified: session.data.user.emailVerified || false,
-          image: session.data.user.image,
+          image: session.data.user.image ?? null,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: session.data.user.email,
           name: session.data.user.name || session.data.user.email,
           emailVerified: session.data.user.emailVerified || false,
-          image: session.data.user.image,
+          image: session.data.user.image ?? null,
           createdAt: new Date(),
           updatedAt: new Date(),
         };

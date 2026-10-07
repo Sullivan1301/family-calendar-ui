@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, isSuperAdmin, logout } = useAuth();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -24,7 +24,7 @@ export function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] h-16 bg-tba-blue flex items-center justify-between px-6 md:px-10 shadow-lg shadow-tba-blue/20">
-      <Link href="/apps/web/public" className="flex items-center gap-3 font-serif font-black text-2xl text-white tracking-tight group">
+      <Link href="/" className="flex items-center gap-3 font-serif font-black text-2xl text-white tracking-tight group">
         <span className="bg-white text-tba-blue w-10 h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">T</span>
         <div className="flex flex-col leading-none">
           <span className="text-xl">BA</span>
@@ -93,12 +93,12 @@ export function Navbar() {
           <div className="text-right hidden sm:block">
             <div className="text-xs font-bold text-white leading-none">{user?.name || 'Sullivan'}</div>
             <div className="text-[0.6rem] font-bold text-tba-cyan uppercase tracking-tighter">
-              {isAdmin ? 'Super Admin' : 'Membre Famille'}
+              {isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : 'Membre Famille'}
             </div>
           </div>
           <div className="w-10 h-10 rounded-full bg-linear-to-br from-tba-cyan to-tba-blue border-2 border-white/40 flex items-center justify-center font-black text-sm text-white shadow-md group-hover:scale-110 transition-transform overflow-hidden">
-            {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+            {user?.image ? (
+              <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
             ) : (
               user?.name?.[0] || 'S'
             )}

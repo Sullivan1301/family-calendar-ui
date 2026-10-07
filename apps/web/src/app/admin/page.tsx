@@ -20,10 +20,11 @@ import { useAuth } from "../../context/AuthContext";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { UserStatus, EventStatus, User, Event } from "../../types";
 import { toast } from "sonner";
-import { useApi, apiPost } from "../../hooks/useApi";
+import { useApi, apiPost, apiPatch } from "../../hooks/useApi";
 
 export default function AdminDashboard() {
-  const { isAdmin, isSuperAdmin, activeFamily } = useAuth();
+  const { user, isAdmin, isSuperAdmin, activeFamily } = useAuth();
+  const actorName = user?.name || 'Moi';
   const [activeTab, setActiveTab] = useState<'members' | 'events' | 'history'>('members');
 
   const { data: eventsData, refetch: refetchEvents } = useApi<{ events: any[] }>(
@@ -36,7 +37,18 @@ export default function AdminDashboard() {
   const [history, setHistory] = useState<any[]>([]);
 
   const pendingMembers = useMemo(() => {
-    return (membersData?.members || []).filter((m: any) => m.status === 'pending');
+    return (membersData?.members || [])
+      .filter((m: any) => m.status === 'pending')
+      .map((m: any) => ({
+        id: m.id,
+        name: m.user?.name || m.user?.email || 'Membre inconnu',
+        email: m.user?.email || '',
+        avatar: initials(m.user?.name || m.user?.email || '?'),
+        date: m.joinedAt
+          ? new Date(m.joinedAt).toLocaleDateString('fr-FR')
+          : '—',
+        status: m.status,
+      }));
   }, [membersData]);
 
   const pendingEvents = useMemo(() => {
@@ -59,25 +71,39 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-tba-blue mb-2">Accès restreint</h1>
         <p className="text-muted-foreground max-w-md">
           Vous n'avez pas les permissions nécessaires pour accéder à cette page. 
-          Veuillez contacter le Super Admin Sullivan si vous pensez qu'il s'agit d'une erreur.
+          Veuillez contacter un administrateur de votre famille si vous pensez qu'il s'agit d'une erreur.
         </p>
       </div>
     );
   }
 
-  const handleMemberAction = (id: string, action: 'approved' | 'rejected') => {
-    const member = pendingMembers.find(m => m.id === id);
-    if (member) {
-      setPendingMembers(prev => prev.filter(m => m.id !== id));
-      setHistory(prev => [{ 
-        id: Date.now().toString(), 
-        action: action === 'approved' ? "Approbation Membre" : "Rejet Membre", 
-        target: member.name, 
-        admin: "Sullivan", 
-        date: "À l'instant", 
-        status: action 
-      }, ...prev]);
-      toast.success(action === 'approved' ? `Membre ${member.name} approuvé !` : `Membre ${member.name} rejeté.`);
+  const handleMemberAction = async (id: string, action: 'approved' | 'rejected') => {
+    const member = pendingMembers.find((m: any) => m.id === id);
+    if (!member || !activeFamily) return;
+
+    try {
+      await apiPatch(`/api/families/${activeFamily.id}/members/${id}`, {
+        status: action === 'approved' ? 'active' : 'rejected',
+      });
+      toast.success(
+        action === 'approved'
+          ? `Membre ${member.name} approuvé !`
+          : `Membre ${member.name} rejeté.`
+      );
+      setHistory((prev) => [
+        {
+          id: Date.now().toString(),
+          action: action === 'approved' ? 'Approbation Membre' : 'Rejet Membre',
+          target: member.name,
+          admin: actorName,
+          date: "À l'instant",
+          status: action,
+        },
+        ...prev,
+      ]);
+      refetchMembers();
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de l'action");
     }
   };
 
@@ -92,7 +118,7 @@ export default function AdminDashboard() {
         id: Date.now().toString(),
         action: action === 'approved' ? "Approbation Événement" : "Rejet Événement",
         target: event.title,
-        admin: "Sullivan",
+        admin: actorName,
         date: "À l'instant",
         status: action
       }, ...prev]);
@@ -164,6 +190,16 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
+}
+
+/** Initiales affichées dans la pastille d'un membre. */
+function initials(label: string) {
+  return label
+    .split(/[s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('') || '?';
 }
 
 function StatCard({ title, value, subtitle, icon, color, textColor = "text-white" }: any) {

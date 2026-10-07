@@ -26,25 +26,50 @@ export default function Dashboard() {
   const [month, setMonth] = useState<Date>(new Date());
   const { user, isAdmin, activeFamily } = useAuth();
 
+  // Les fériés dépendent de l'année affichée, pas d'une année figée.
+  const displayedYear = month.getFullYear();
   useEffect(() => {
-    getMadagascarHolidays(2026).then(setHolidays);
-  }, []);
+    getMadagascarHolidays(displayedYear).then(setHolidays);
+  }, [displayedYear]);
 
   const { data: eventsData } = useApi<{ events: any[] }>(
     activeFamily ? `/api/events?familyId=${activeFamily.id}` : null
   );
+  const { data: membersData } = useApi<{ members: any[] }>(
+    activeFamily ? `/api/families/${activeFamily.id}/members` : null
+  );
 
   const familyEvents = useMemo(() => {
-    if (eventsData?.events) {
-      return eventsData.events.map((e: any) => ({
-        id: e.id,
-        date: new Date(e.startDate),
-        title: `${typeEmoji[e.type] || '📅'} ${e.title}`,
-        type: e.type === 'mariage' || e.type === 'baptême' ? 'event' : e.type === 'autre' ? 'birthday' : 'event',
-      }));
-    }
-    return [];
+    return (eventsData?.events ?? []).map((e: any) => ({
+      id: e.id,
+      date: new Date(e.startDate),
+      title: `${typeEmoji[e.type] || '📅'} ${e.title}`,
+      eventType: e.type as string,
+      status: e.status as string,
+      // Faute de date de naissance en base, "autre" sert d'anniversaire.
+      isBirthday: e.type === 'autre',
+    }));
   }, [eventsData]);
+
+  const activeMembers = useMemo(
+    () => (membersData?.members ?? []).filter((m: any) => m.status === 'active').length,
+    [membersData]
+  );
+
+  const pendingEvents = useMemo(
+    () => familyEvents.filter((e) => e.status === 'pending').length,
+    [familyEvents]
+  );
+
+  const upcomingEvents = useMemo(() => {
+    const now = new Date();
+    return familyEvents.filter((e) => e.date >= now).length;
+  }, [familyEvents]);
+
+  const eventsThisYear = useMemo(() => {
+    const year = new Date().getFullYear();
+    return familyEvents.filter((e) => e.date.getFullYear() === year).length;
+  }, [familyEvents]);
 
   // Fonction pour obtenir les événements d'une date spécifique
   const getEventsForDate = (date: Date) => {
@@ -77,7 +102,7 @@ export default function Dashboard() {
     <div className="animate-fade-in space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-tba-blue tracking-tight">Bonjour, {user?.name || 'Sullivan'} 👋</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-tba-blue tracking-tight">Bonjour, {user?.name || 'à vous'} 👋</h1>
             <p className="text-base text-tba-gray mt-2 font-sans font-normal">
               Aujourd'hui nous sommes le <span className="font-bold text-tba-blue">{format(new Date(), 'EEEE d MMMM yyyy', { locale: fr })}</span>
             </p>
@@ -110,14 +135,10 @@ export default function Dashboard() {
 
       {/* Stats Quick View */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon="🎉" color="bg-tba-blue/10 text-tba-blue" value={String(familyEvents.length)} label="Événements cette année" />
-        <StatCard icon="👨‍👩‍👧‍👦" color="bg-tba-cyan/10 text-tba-cyan" value={activeFamily ? "—" : "—"} label="Membres actifs" />
-        {isAdmin ? (
-          <StatCard icon="🛡️" color="bg-tba-yellow/20 text-tba-text" value={String(familyEvents.filter(e => e.type === 'pending').length)} label="Validations en attente" />
-        ) : (
-          <StatCard icon="⏳" color="bg-tba-red/10 text-tba-red" value={String(familyEvents.filter(e => e.type === 'pending').length)} label="RSVP en attente" />
-        )}
-        <StatCard icon="✅" color="bg-green-100 text-green-600" value={String(familyEvents.length > 0 ? "100%" : "—")} label="Disponibilité moy." />
+        <StatCard icon="🎉" color="bg-tba-blue/10 text-tba-blue" value={String(eventsThisYear)} label="Événements cette année" />
+        <StatCard icon="👨‍👩‍👧‍👦" color="bg-tba-cyan/10 text-tba-cyan" value={String(activeMembers)} label="Membres actifs" />
+        <StatCard icon="🛡️" color="bg-tba-yellow/20 text-tba-text" value={String(pendingEvents)} label={isAdmin ? "Validations en attente" : "En attente de validation"} />
+        <StatCard icon="📅" color="bg-green-100 text-green-600" value={String(upcomingEvents)} label="Événements à venir" />
       </div>
 
       {/* Calendar Section */}
@@ -189,7 +210,7 @@ export default function Dashboard() {
                         <div className="flex flex-wrap gap-0.5 justify-center mt-1">
                           {isHoliday && <span className="w-2 h-2 rounded-full bg-tba-yellow" />}
                           {events.slice(0, 2).map((event, idx) => ( // Limiter à 2 événements pour ne pas encombrer
-                            <span key={idx} className={`w-2 h-2 rounded-full ${event.type === 'birthday' ? 'bg-tba-red' : 'bg-tba-cyan'}`} />
+                            <span key={idx} className={`w-2 h-2 rounded-full ${event.isBirthday ? 'bg-tba-red' : 'bg-tba-cyan'}`} />
                           ))}
                           {events.length > 2 && (
                             <span className="text-[0.6rem] text-gray-500">+{events.length - 2}</span>
@@ -253,11 +274,11 @@ export default function Dashboard() {
                         <div key={`event-${idx}`} className="p-4 border rounded-lg bg-gradient-to-r from-cyan-50 to-cyan-100 border-cyan-200">
                           <div className="flex items-start">
                             <div className="mr-3 mt-0.5">
-                              <div className={`w-3 h-3 rounded-full ${event.type === 'birthday' ? 'bg-tba-red' : 'bg-tba-cyan'}`}></div>
+                              <div className={`w-3 h-3 rounded-full ${event.isBirthday ? 'bg-tba-red' : 'bg-tba-cyan'}`}></div>
                             </div>
                             <div>
                               <div className="font-bold text-tba-cyan text-sm uppercase tracking-wide">
-                                {event.type === 'birthday' ? 'Anniversaire' : 'Événement'}
+                                {event.isBirthday ? 'Anniversaire' : 'Événement'}
                               </div>
                               <div className="font-medium text-gray-800">{event.title}</div>
                             </div>
@@ -307,7 +328,7 @@ export default function Dashboard() {
                   <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 animate-fade-in">
                     <div className="text-[0.6rem] font-black uppercase tracking-tighter text-tba-cyan mb-1">📅 Événement</div>
                     <div className="text-sm font-bold leading-snug">{selectedDayInfo.event.title}</div>
-                    <Link href="/events" className="inline-flex items-center gap-1 text-[0.6rem] font-black mt-3 text-white/60 hover:text-white transition-colors">
+                    <Link href={`/events/${selectedDayInfo.event.id}`} className="inline-flex items-center gap-1 text-[0.6rem] font-black mt-3 text-white/60 hover:text-white transition-colors">
                       VOIR LES DÉTAILS <Info size={10} />
                     </Link>
                   </div>
@@ -338,13 +359,13 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center justify-between text-sm font-bold">
                   <span className="text-tba-gray">Anniversaires</span>
-                  <span className="w-8 h-8 rounded-lg bg-tba-red/10 text-tba-red flex items-center justify-center">{currentMonthEvents.filter(e => e.type === 'birthday').length}</span>
+                  <span className="w-8 h-8 rounded-lg bg-tba-red/10 text-tba-red flex items-center justify-center">{currentMonthEvents.filter(e => e.isBirthday).length}</span>
                 </div>
               </div>
               
               <div className="mt-8">
                 <Link href="/events" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-tba-blue/20 text-tba-blue font-bold text-xs hover:bg-tba-blue/5 transition-all">
-                  TÉLÉCHARGER LE PLANNING PDF
+                  VOIR TOUS LES ÉVÉNEMENTS
                 </Link>
               </div>
             </div>
