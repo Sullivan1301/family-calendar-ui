@@ -71,12 +71,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Ajouter le rôle member
-    await db.insert(userRoles).values({
-      userId,
-      familyId: family.id,
-      role: 'member',
-    });
+    // Ajouter le rôle member. Un membre qui rejoint à nouveau garde son rôle :
+    // la clé primaire (userId, familyId) interdit un second insert.
+    await db
+      .insert(userRoles)
+      .values({
+        userId,
+        familyId: family.id,
+        role: 'member',
+      })
+      .onConflictDoNothing();
 
     return NextResponse.json({
       success: true,

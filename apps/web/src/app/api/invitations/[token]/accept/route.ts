@@ -76,12 +76,16 @@ export async function POST(
       });
     }
 
-    // Ajouter le rôle member
-    await db.insert(userRoles).values({
-      userId,
-      familyId: invitation.familyId,
-      role: 'member',
-    });
+    // Ajouter le rôle member. Si l'utilisateur avait déjà un rôle dans cette
+    // famille, on le conserve : la clé primaire (userId, familyId) est unique.
+    await db
+      .insert(userRoles)
+      .values({
+        userId,
+        familyId: invitation.familyId,
+        role: 'member',
+      })
+      .onConflictDoNothing();
 
     // Marquer l'invitation comme acceptée
     await db

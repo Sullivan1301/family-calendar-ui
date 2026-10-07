@@ -53,9 +53,20 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // Le rôle super-admin est global : sa ligne n'a ni familyId ni famille
+    // liée, elle ne doit donc pas apparaître dans la liste des familles.
+    const globalSuperAdmin = familiesWithRoles.some(
+      (userRole) => userRole.role === 'super-admin' && !userRole.familyId
+    );
+
+    const familyRoles = familiesWithRoles.filter(
+      (userRole): userRole is typeof userRole & { familyId: string; family: { id: string; name: string } } =>
+        !!userRole.familyId && !!userRole.family
+    );
+
     // Get member status for each family
     const families: UserFamily[] = await Promise.all(
-      familiesWithRoles.map(async (userRole) => {
+      familyRoles.map(async (userRole) => {
         const member = await db.query.familyMembers.findFirst({
           where: and(
             eq(familyMembers.userId, userId),
@@ -76,8 +87,9 @@ export async function GET(req: NextRequest) {
     );
 
     // Check admin/super-admin status
-    const isSuperAdmin = families.some((f) => f.role === 'super-admin');
-    const isAdmin = families.some((f) => f.role === 'admin' || f.role === 'super-admin');
+    const isSuperAdmin =
+      globalSuperAdmin || families.some((f) => f.role === 'super-admin');
+    const isAdmin = isSuperAdmin || families.some((f) => f.role === 'admin');
 
     return NextResponse.json({
       user: {

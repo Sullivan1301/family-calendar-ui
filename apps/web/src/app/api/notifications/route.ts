@@ -16,12 +16,10 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const unreadOnly = url.searchParams.get('unread') === 'true';
 
-    let query = db.query.notifications.findMany({
+    const results = await db.query.notifications.findMany({
       where: eq(notifications.userId, userId),
       orderBy: desc(notifications.createdAt),
     });
-
-    const results = await query;
 
     // Filtrer si demandé
     const filtered = unreadOnly ? results.filter((n) => !n.read) : results;

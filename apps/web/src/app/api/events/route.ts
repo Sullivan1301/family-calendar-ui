@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/drizzle/db';
 import { events, eventGuests, eventHistory, notifications } from '@/lib/drizzle/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, gte, lte } from 'drizzle-orm';
 import { z } from 'zod';
 import { auth } from '@/lib/auth/config';
 import { isFamilyMember, getUserRole } from '@/lib/permissions';
@@ -38,15 +38,17 @@ export async function GET(req: NextRequest) {
     const userId = session.user.id;
     const { searchParams } = new URL(req.url);
 
+    // searchParams.get() renvoie null si absent, et .optional() rejette null :
+    // sans cette conversion, tout appel sans start/end repartait en 400.
     const validated = querySchema.safeParse({
       familyId: searchParams.get('familyId'),
-      start: searchParams.get('start'),
-      end: searchParams.get('end'),
+      start: searchParams.get('start') ?? undefined,
+      end: searchParams.get('end') ?? undefined,
     });
 
     if (!validated.success) {
       return NextResponse.json(
-        { error: 'Invalid query params', details: validated.error.errors },
+        { error: 'Invalid query params', details: validated.error.issues },
         { status: 400 }
       );
     }
@@ -59,9 +61,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Construire la requête
-    let query = db.query.events.findMany({
-      where: eq(events.familyId, familyId),
+    // Filtrer directement en SQL plutôt que de tout charger en mémoire.
+    const conditions = [eq(events.familyId, familyId)];
+    if (start) conditions.push(gte(events.startDate, new Date(start)));
+    if (end) conditions.push(lte(events.startDate, new Date(end)));
+
+    const familyEvents = await db.query.events.findMany({
+      where: and(...conditions),
       with: {
         createdByUser: {
           columns: {
@@ -80,18 +86,7 @@ export async function GET(req: NextRequest) {
       orderBy: desc(events.startDate),
     });
 
-    const events = await query;
-
-    // Filtrer par date si spécifié
-    let filtered = events;
-    if (start) {
-      filtered = filtered.filter(e => new Date(e.startDate) >= new Date(start));
-    }
-    if (end) {
-      filtered = filtered.filter(e => new Date(e.startDate) <= new Date(end));
-    }
-
-    return NextResponse.json({ events: filtered });
+    return NextResponse.json({ events: familyEvents });
   } catch (error) {
     console.error('Error fetching events:', error);
     return NextResponse.json(
@@ -114,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     if (!validated.success) {
       return NextResponse.json(
-        { error: 'Invalid data', details: validated.error.errors },
+        { error: 'Invalid data', details: validated.error.issues },
         { status: 400 }
       );
     }

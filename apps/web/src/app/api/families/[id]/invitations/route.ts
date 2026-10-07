@@ -35,7 +35,7 @@ export async function POST(
 
     if (!validated.success) {
       return NextResponse.json(
-        { error: 'Invalid email', details: validated.error.errors },
+        { error: 'Invalid email', details: validated.error.issues },
         { status: 400 }
       );
     }
